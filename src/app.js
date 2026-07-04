@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth.routes');
 const usersRoutes = require('./routes/users.routes');
+const requestsRoutes = require('./routes/requests.routes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/requests', requestsRoutes);
 
 // Catch-all 404
 app.use((req, res) => {
