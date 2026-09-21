@@ -1,4 +1,4 @@
-﻿# Hoodi — Hyperlocal Community Platform
+# Hoodi — Hyperlocal Community Platform
 
 A full-stack hyperlocal platform connecting neighbors for everyday tasks, peer-to-peer skill learning, and community mutual aid.
 
@@ -17,7 +17,10 @@ A full-stack hyperlocal platform connecting neighbors for everyday tasks, peer-t
   - Hoodi Skills UI: Marketplace for booking lessons and teacher profile management.
   - Admin dashboard: User and moderation management.
 
-- **`mobile/`**: Planned cross-platform Flutter application consuming the exact same Django REST API.
+- **`mobile/`**: Cross-platform Flutter application (Android, iOS, Windows, Web) connected to the exact same Supabase database and schema.
+  - Hoodi Help mobile feed: Nearby errands with 5 km radius, urgency badges, and task broadcasting.
+  - Hoodi Skills mobile marketplace: Lesson browsing & booking sheets.
+  - Mobile in-app Wallet & Trust: Instant simulated deposits, trust badges, and transaction ledger.
 
 ---
 
@@ -38,7 +41,7 @@ python manage.py runserver 127.0.0.1:8000
 - API Documentation: http://127.0.0.1:8000/api/docs/
 - Django Admin: http://127.0.0.1:8000/admin/
 
-### 2. Frontend Setup (React)
+### 2. Frontend Setup (React Web)
 
 ```powershell
 cd frontend
@@ -47,3 +50,11 @@ bun run dev     # or npm run dev
 ```
 
 - Web UI: http://localhost:8080
+
+### 3. Mobile App Setup (Flutter)
+
+```powershell
+cd mobile
+flutter pub get
+flutter run -d windows    # or -d chrome or your Android device/emulator
+```

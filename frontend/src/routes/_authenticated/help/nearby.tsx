@@ -39,23 +39,22 @@ type Req = any;
 
 function NearbyPage() {
   const loc = useHoodiLocation();
-  const coords = loc.coords;
+  const activeCoords = loc.coords ?? { lat: 12.9716, lng: 77.5946 };
   const [radiusM, setRadiusM] = useState<number>(DEFAULT_RADIUS_M);
   const [urgencyFilter, setUrgencyFilter] = useState<string | null>(null);
 
   const nearby = useQuery({
-    queryKey: ["nearby", coords?.lat, coords?.lng, radiusM, urgencyFilter],
-    enabled: !!coords,
+    queryKey: ["nearby", activeCoords.lat, activeCoords.lng, radiusM, urgencyFilter],
     queryFn: () =>
       listNearbyRequests({
         data: {
-          lat: coords!.lat,
-          lng: coords!.lng,
+          lat: activeCoords.lat,
+          lng: activeCoords.lng,
           radius_m: radiusM,
           urgency: (urgencyFilter as "normal" | "today" | "emergency" | null) ?? null,
         },
       }),
-    refetchInterval: 20_000,
+    refetchInterval: 10_000,
   });
 
   const items = useMemo(

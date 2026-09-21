@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { createHelpRequest } from "@/lib/hoodi/requests.functions";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ export const Route = createFileRoute("/_authenticated/help/ask")({
 
 function CreatePage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [requestType, setRequestType] = useState<RequestType>("pickup_delivery");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -64,18 +65,28 @@ function CreatePage() {
   const [dropoff, setDropoff] = useState<PlacePick | null>(null);
   const [service, setService] = useState<PlacePick | null>(null);
 
-  // Default the single-point / delivery pin to the neighbor's saved location.
+  // Default the single-point / delivery pin to the neighbor's saved location or Bengaluru default.
   useEffect(() => {
-    if (!loc.coords) return;
+    const lat = loc.coords?.lat ?? 12.9716;
+    const lng = loc.coords?.lng ?? 77.5946;
+    const addr = shortAddress(loc.location) || "Indiranagar, Bengaluru";
     const mine: PlacePick = {
-      lat: loc.coords.lat,
-      lng: loc.coords.lng,
-      address: shortAddress(loc.location),
+      lat,
+      lng,
+      address: addr,
       name: null,
     };
     setService((s) => s ?? mine);
-    if (requestType === "pickup_delivery") setDropoff((d) => d ?? mine);
-  }, [loc.coords, loc.location, requestType]);
+    setDropoff((d) => d ?? mine);
+    if (model.pickup && !pickup) {
+      setPickup({
+        lat: lat + 0.002,
+        lng: lng + 0.002,
+        address: "Apollo Pharmacy / Local Market",
+        name: "Shop nearby",
+      });
+    }
+  }, [loc.coords, loc.location, model.pickup, pickup]);
 
   /** The location the neighborhood feed searches on. */
   const primary = model.service ? service : dropoff;
@@ -133,6 +144,8 @@ function CreatePage() {
     },
     onSuccess: (row) => {
       toast.success("Posted — neighbors within 5 km are being notified.");
+      qc.invalidateQueries({ queryKey: ["my-requests"] });
+      qc.invalidateQueries({ queryKey: ["open-community-requests"] });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       navigate({ to: "/help/requests/$id", params: { id: (row as any).id } });
     },

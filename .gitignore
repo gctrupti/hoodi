@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 */node_modules/
 venv/
@@ -47,3 +47,8 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Scratch & Temporary
+scratch/
+.temp/
+*/.temp/
