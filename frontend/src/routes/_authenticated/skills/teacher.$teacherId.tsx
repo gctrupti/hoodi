@@ -1,9 +1,22 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarCheck, Clock, Loader2, MapPin, Star, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Award,
+  CalendarCheck,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Globe,
+  Loader2,
+  MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
-import { getTeacherPublicProfile } from "@/lib/hoodi/skills.functions";
+import { getTeacherPublicProfile, type PortfolioItem, type Certification } from "@/lib/hoodi/skills.functions";
 import { bookSession } from "@/lib/hoodi/bookings.functions";
 import { inr } from "@/lib/hoodi/format";
 import {
@@ -153,6 +166,11 @@ function TeacherProfilePage() {
               {prof.name ?? "Neighbor"}
             </h1>
             <TeacherTrust teacherId={teacherId} />
+            {t?.is_verified_teacher && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Verified Instructor
+              </span>
+            )}
           </div>
           {t?.headline && <p className="mt-1 text-sm text-ink-soft">{t.headline}</p>}
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
@@ -168,6 +186,16 @@ function TeacherProfilePage() {
             <Stat icon={<Users className="h-3.5 w-3.5" />} label={`${t?.experience_years ?? 0} yr experience`} />
             {Number(t?.hourly_rate ?? 0) > 0 && (
               <Stat icon={<Clock className="h-3.5 w-3.5" />} label={`${inr(Number(t?.hourly_rate))}/hr`} />
+            )}
+            {t?.teaching_mode && (
+              <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium text-ink-soft capitalize">
+                {t.teaching_mode}
+              </span>
+            )}
+            {t?.languages && t.languages.length > 0 && (
+              <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium text-ink-soft">
+                🗣️ {t.languages.join(", ")}
+              </span>
             )}
           </div>
         </div>
@@ -185,6 +213,73 @@ function TeacherProfilePage() {
         <section className="mt-6 rounded-2xl border border-border bg-background p-5 shadow-sm">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">About</h2>
           <p className="mt-2 whitespace-pre-line text-sm text-ink-soft">{t?.bio || prof.bio}</p>
+        </section>
+      )}
+
+      {/* Portfolio Showcase */}
+      {Array.isArray(t?.portfolio_items) && t.portfolio_items.length > 0 && (
+        <section className="mt-6 rounded-2xl border border-border bg-background p-5 shadow-sm">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+            Portfolio & Projects
+          </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {(t.portfolio_items as PortfolioItem[]).map((p) => (
+              <div
+                key={p.id}
+                className="rounded-xl border border-border bg-card p-3 text-xs transition hover:border-primary/50"
+              >
+                <div className="flex items-start justify-between">
+                  <p className="font-bold text-ink">{p.title}</p>
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" /> View
+                  </a>
+                </div>
+                {p.description && <p className="mt-1 text-ink-soft">{p.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Certifications & Diplomas */}
+      {Array.isArray(t?.certifications) && t.certifications.length > 0 && (
+        <section className="mt-6 rounded-2xl border border-border bg-background p-5 shadow-sm">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+            Certifications & Credentials
+          </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {(t.certifications as Certification[]).map((c) => (
+              <div
+                key={c.id}
+                className="flex items-start justify-between rounded-xl border border-border bg-card p-3 text-xs"
+              >
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <Award className="h-4 w-4 text-amber-500" />
+                    <p className="font-bold text-ink">{c.title}</p>
+                  </div>
+                  <p className="mt-1 text-ink-soft">
+                    {c.issuer} {c.year ? `· ${c.year}` : ""}
+                  </p>
+                </div>
+                {c.credential_url && (
+                  <a
+                    href={c.credential_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3 w-3" /> Verify
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -359,9 +454,9 @@ function TeacherProfilePage() {
               {time && (
                 <div className="rounded-2xl bg-sand/60 p-4">
                   <p className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
-                    3 · Booking summary
+                    3 · Booking & Escrow Protection
                   </p>
-                  <dl className="mt-2 space-y-1 text-sm text-ink-soft">
+                  <dl className="mt-2 space-y-1.5 text-sm text-ink-soft">
                     <Row label="Skill" value={offering?.title ?? ""} />
                     <Row
                       label="When"
@@ -375,7 +470,32 @@ function TeacherProfilePage() {
                     />
                     <Row label="Duration" value={`${offering?.duration_minutes ?? 60} min`} />
                     <Row
-                      label="Amount held"
+                      label="Teaching Mode"
+                      value={
+                        t?.teaching_mode === "offline"
+                          ? "In-Person (Studio/Home)"
+                          : t?.teaching_mode === "online"
+                          ? "Online Video Call"
+                          : "Online or In-Person"
+                      }
+                    />
+                    <div className="my-2 border-t border-border pt-1">
+                      <Row
+                        label="Session Price"
+                        value={inr(Number(offering?.price_per_session ?? 0))}
+                      />
+                      <Row
+                        label="Platform Fee (15%)"
+                        value={`- ${inr(Math.round(Number(offering?.price_per_session ?? 0) * 0.15))}`}
+                      />
+                      <Row
+                        label="Teacher Net Payout"
+                        value={inr(Math.round(Number(offering?.price_per_session ?? 0) * 0.85))}
+                        strong
+                      />
+                    </div>
+                    <Row
+                      label="Total Held in Escrow"
                       value={inr(Number(offering?.price_per_session ?? 0))}
                       strong
                     />
@@ -385,12 +505,13 @@ function TeacherProfilePage() {
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     maxLength={1000}
-                    placeholder="What would you like to focus on?"
+                    placeholder="Share your learning goals or questions for the mentor"
                     className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-ink outline-none focus:border-primary"
                   />
-                  <p className="mt-2 text-xs text-ink-soft">
-                    Payment is held safely and only released to your mentor after the session is completed.
-                  </p>
+                  <div className="mt-2.5 flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300">
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>Funds held safely in Hoodi Escrow until you confirm the lesson took place.</span>
+                  </div>
                   {!confirming ? (
                     <button
                       onClick={() => setConfirming(true)}

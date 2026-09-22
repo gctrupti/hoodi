@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   // Brand Color Palette
   static const Color primary = Color(0xFFE07A5F); // Warm terracotta / clay
+  static const Color clay = Color(0xFFE07A5F);
   static const Color primaryDark = Color(0xFFC86147);
   static const Color primaryLight = Color(0xFFF4DDD6);
 

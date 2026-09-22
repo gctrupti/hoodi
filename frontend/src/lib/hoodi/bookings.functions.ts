@@ -199,6 +199,23 @@ export const cancelBooking = createServerFn({ method: "POST" })
     return row;
   });
 
+export const startSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => StatusInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("skill_bookings")
+      .update({ status: "in_progress" })
+      .eq("id", data.bookingId)
+      .eq("status", "confirmed")
+      .or(`learner_id.eq.${context.userId},teacher_id.eq.${context.userId}`)
+      .select(BOOKING_COLS)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Only a confirmed session can be started.");
+    return row;
+  });
+
 export const completeBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => StatusInput.parse(input))
@@ -207,11 +224,11 @@ export const completeBooking = createServerFn({ method: "POST" })
       .from("skill_bookings")
       .update({ status: "completed", completed_at: new Date().toISOString() })
       .eq("id", data.bookingId)
-      .eq("status", "confirmed")
+      .in("status", ["confirmed", "in_progress"])
       .select(BOOKING_COLS)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!row) throw new Error("Only a confirmed session can be marked complete.");
+    if (!row) throw new Error("Only a confirmed or in-progress session can be marked complete.");
     const other = row.learner_id === context.userId ? row.teacher_id : row.learner_id;
     await notifyBooking(
       context.supabase,

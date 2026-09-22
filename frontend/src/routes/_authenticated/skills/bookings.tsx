@@ -1,18 +1,35 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarCheck, Loader2, MessageCircle, Star } from "lucide-react";
+import {
+  CalendarCheck,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  Play,
+  Repeat,
+  Send,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   listMyBookings,
   confirmBooking,
   cancelBooking,
+  startSession,
   completeBooking,
   releaseBookingPayment,
   rateSession,
   type BookingRow,
 } from "@/lib/hoodi/bookings.functions";
+import {
+  listMyExchanges,
+  respondToExchange,
+  completeExchangeSession,
+  type SkillExchangeRow,
+} from "@/lib/hoodi/skill-exchange.functions";
 import { getMyProfile } from "@/lib/hoodi/profiles.functions";
 import { getLearnerDashboard } from "@/lib/hoodi/skills.functions";
 import { SessionChat } from "@/components/hoodi/SessionChat";
@@ -67,15 +84,18 @@ export const Route = createFileRoute("/_authenticated/skills/bookings")({
 const UPCOMING = ["requested", "confirmed"];
 
 function BookingsPage() {
+  const [activeView, setActiveView] = useState<"bookings" | "swaps">("bookings");
   const qc = useQueryClient();
   const me = useQuery({ queryKey: ["me"], queryFn: () => getMyProfile() });
   const bookings = useQuery({ queryKey: ["my-bookings"], queryFn: () => listMyBookings() });
+  const exchanges = useQuery({ queryKey: ["my-exchanges"], queryFn: () => listMyExchanges() });
   const learner = useQuery({ queryKey: ["learner-dashboard"], queryFn: () => getLearnerDashboard() });
   const [chatFor, setChatFor] = useState<string | null>(null);
   const [rateFor, setRateFor] = useState<BookingRow | null>(null);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["my-bookings"] });
+    qc.invalidateQueries({ queryKey: ["my-exchanges"] });
     qc.invalidateQueries({ queryKey: ["wallet"] });
     qc.invalidateQueries({ queryKey: ["wallet-summary"] });
     qc.invalidateQueries({ queryKey: ["learner-dashboard"] });
@@ -99,6 +119,14 @@ function BookingsPage() {
     },
     onError: onErr,
   });
+  const startM = useMutation({
+    mutationFn: (id: string) => startSession({ data: { bookingId: id } }),
+    onSuccess: () => {
+      toast.success("Session started! Happy learning.");
+      invalidate();
+    },
+    onError: onErr,
+  });
   const completeM = useMutation({
     mutationFn: (id: string) => completeBooking({ data: { bookingId: id } }),
     onSuccess: () => {
@@ -116,71 +144,253 @@ function BookingsPage() {
     onError: onErr,
   });
 
+  const respondExchangeM = useMutation({
+    mutationFn: ({ id, action }: { id: string; action: "accept" | "decline" }) =>
+      respondToExchange({ data: { exchangeId: id, action } }),
+    onSuccess: (_, v) => {
+      toast.success(v.action === "accept" ? "Skill swap accepted! Chat unlocked." : "Proposal declined.");
+      invalidate();
+    },
+    onError: onErr,
+  });
+
+  const completeExchangeM = useMutation({
+    mutationFn: (id: string) => completeExchangeSession({ data: { exchangeId: id } }),
+    onSuccess: () => {
+      toast.success("Session completion marked! Once both parties confirm, swap is finalized.");
+      invalidate();
+    },
+    onError: onErr,
+  });
+
   const rows = bookings.data ?? [];
   const asLearner = rows.filter((b) => b.role === "learner");
   const asTeacher = rows.filter((b) => b.role === "teacher");
   const upcomingLearner = asLearner.filter((b) => UPCOMING.includes(b.status)).length;
   const upcomingTeacher = asTeacher.filter((b) => UPCOMING.includes(b.status)).length;
+  const exchangeRows = exchanges.data ?? [];
 
   return (
     <div className="mx-auto max-w-4xl">
-      <header>
-        <span className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
-          Hoodi Skills
-        </span>
-        <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          My bookings
-        </h1>
-        <p className="mt-2 max-w-xl text-sm text-ink-soft">
-          Upcoming sessions you've booked as a learner, and sessions others have booked with you.
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+            Hoodi Skills
+          </span>
+          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            My Learning & Swaps
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-ink-soft">
+            Track your upcoming paid mentor sessions and peer-to-peer community skill barters.
+          </p>
+        </div>
+
+        {/* View Switcher */}
+        <div className="flex items-center gap-1 rounded-2xl border border-border bg-card p-1 shadow-xs">
+          <button
+            onClick={() => setActiveView("bookings")}
+            className={`rounded-xl px-4 py-1.5 text-xs font-bold transition ${
+              activeView === "bookings"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-ink-soft hover:text-ink"
+            }`}
+          >
+            Paid Sessions ({rows.length})
+          </button>
+          <button
+            onClick={() => setActiveView("swaps")}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition ${
+              activeView === "swaps"
+                ? "bg-amber-500 text-white shadow-xs"
+                : "text-ink-soft hover:text-ink"
+            }`}
+          >
+            <Repeat className="h-3.5 w-3.5" />
+            Skill Swaps ({exchangeRows.length})
+          </button>
+        </div>
       </header>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {[
-          { label: "As a learner", count: upcomingLearner },
-          { label: "As a teacher", count: upcomingTeacher },
-          { label: "Completed", count: learner.data?.completed ?? 0 },
-          { label: "Cancelled", count: learner.data?.cancelled ?? 0 },
-          { label: "Upcoming", count: learner.data?.upcoming ?? 0 },
-        ].map(({ label, count }) => (
-          <div
-            key={label}
-            className="rounded-2xl border border-border bg-background p-4 text-center shadow-sm"
-          >
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-soft">{label}</p>
-            <p className="mt-2 font-display text-3xl font-bold text-ink">{count}</p>
-            <p className="text-xs text-ink-soft">sessions</p>
+      {activeView === "bookings" ? (
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {[
+              { label: "As a learner", count: upcomingLearner },
+              { label: "As a teacher", count: upcomingTeacher },
+              { label: "Completed", count: learner.data?.completed ?? 0 },
+              { label: "Cancelled", count: learner.data?.cancelled ?? 0 },
+              { label: "Upcoming", count: learner.data?.upcoming ?? 0 },
+            ].map(({ label, count }) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-border bg-background p-4 text-center shadow-xs"
+              >
+                <p className="text-xs font-semibold uppercase tracking-widest text-ink-soft">{label}</p>
+                <p className="mt-2 font-display text-3xl font-bold text-ink">{count}</p>
+                <p className="text-xs text-ink-soft">sessions</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {bookings.isLoading ? (
-        <div className="flex h-40 items-center justify-center text-ink-soft">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={<CalendarCheck className="h-6 w-6" />}
-          title="No bookings yet"
-          body="Browse mentors in Learn and request your first session — it'll show up here for both of you."
-        />
+          {bookings.isLoading ? (
+            <div className="flex h-40 items-center justify-center text-ink-soft">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          ) : rows.length === 0 ? (
+            <EmptyState
+              icon={<CalendarCheck className="h-6 w-6" />}
+              title="No bookings yet"
+              body="Browse mentors in Learn and request your first session — it'll show up here for both of you."
+            />
+          ) : (
+            <div className="mt-8 space-y-8">
+              <BookingGroup
+                title="Sessions you booked"
+                rows={asLearner}
+                actions={{ cancelM, startM, completeM, releaseM, confirmM }}
+                onChat={setChatFor}
+                onRate={setRateFor}
+              />
+              <BookingGroup
+                title="Sessions booked with you"
+                rows={asTeacher}
+                actions={{ cancelM, startM, completeM, releaseM, confirmM }}
+                onChat={setChatFor}
+                onRate={setRateFor}
+              />
+            </div>
+          )}
+        </>
       ) : (
-        <div className="mt-8 space-y-8">
-          <BookingGroup
-            title="Sessions you booked"
-            rows={asLearner}
-            actions={{ cancelM, completeM, releaseM, confirmM }}
-            onChat={setChatFor}
-            onRate={setRateFor}
-          />
-          <BookingGroup
-            title="Sessions booked with you"
-            rows={asTeacher}
-            actions={{ cancelM, completeM, releaseM, confirmM }}
-            onChat={setChatFor}
-            onRate={setRateFor}
-          />
+        /* Skill Swaps View */
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+              Active Community Exchanges ({exchangeRows.length})
+            </h2>
+            <Link
+              to="/skills/learn"
+              className="text-xs font-semibold text-amber-600 hover:underline"
+            >
+              Explore more swap partners →
+            </Link>
+          </div>
+
+          {exchanges.isLoading ? (
+            <div className="flex h-40 items-center justify-center text-ink-soft">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          ) : exchangeRows.length === 0 ? (
+            <EmptyState
+              icon={<Repeat className="h-6 w-6 text-amber-500" />}
+              title="No skill swaps yet"
+              body="Go to the Skill Exchange tab in Learn to discover neighbors looking to barter skills with you!"
+            />
+          ) : (
+            <div className="space-y-3">
+              {exchangeRows.map((ex) => {
+                const isProposer = ex.proposer_id === me.data?.id;
+                return (
+                  <article
+                    key={ex.id}
+                    className="rounded-3xl border border-border bg-card p-5 shadow-xs transition hover:border-amber-500/40"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase ${
+                              ex.status === "completed"
+                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                : ex.status === "in_progress"
+                                ? "bg-amber-500 text-white animate-pulse"
+                                : ex.status === "accepted" || ex.status === "scheduled"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                                : ex.status === "declined" || ex.status === "cancelled"
+                                ? "bg-sand text-ink-soft"
+                                : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                            }`}
+                          >
+                            {ex.status}
+                          </span>
+                          <span className="text-xs text-ink-soft capitalize">Mode: {ex.teaching_mode}</span>
+                        </div>
+                        <h3 className="mt-2 font-display text-lg font-bold text-ink">
+                          Swap with {ex.counterparty.name}
+                        </h3>
+                      </div>
+
+                      {ex.status === "completed" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4" /> Swap Completed (+1 Endorsement)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-3 grid gap-2 sm:grid-cols-2 rounded-2xl border border-border bg-background p-3.5 text-xs">
+                      <div>
+                        <span className="text-ink-soft">What You Teach:</span>
+                        <p className="font-bold text-emerald-700 dark:text-emerald-400">
+                          {isProposer ? ex.proposer_teaches : ex.recipient_teaches}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-ink-soft">What You Learn:</span>
+                        <p className="font-bold text-amber-700 dark:text-amber-400">
+                          {isProposer ? ex.proposer_learns : ex.recipient_learns}
+                        </p>
+                      </div>
+                    </div>
+
+                    {ex.notes && (
+                      <p className="mt-2.5 text-xs text-ink-soft italic">
+                        "{ex.notes}"
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+                      {ex.status === "proposed" && !isProposer && (
+                        <>
+                          <button
+                            onClick={() => respondExchangeM.mutate({ id: ex.id, action: "accept" })}
+                            disabled={respondExchangeM.isPending}
+                            className="rounded-full bg-amber-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                          >
+                            Accept Swap
+                          </button>
+                          <button
+                            onClick={() => respondExchangeM.mutate({ id: ex.id, action: "decline" })}
+                            disabled={respondExchangeM.isPending}
+                            className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-ink-soft"
+                          >
+                            Decline
+                          </button>
+                        </>
+                      )}
+
+                      {["accepted", "scheduled", "in_progress"].includes(ex.status) && (
+                        <button
+                          onClick={() => completeExchangeM.mutate(ex.id)}
+                          disabled={completeExchangeM.isPending}
+                          className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Mark My Session Done
+                        </button>
+                      )}
+
+                      <Link
+                        to="/skills/learn"
+                        className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-ink hover:bg-sand"
+                      >
+                        Partner Profile
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -203,6 +413,8 @@ type Actions = {
   confirmM: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cancelM: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  startM: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   completeM: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -294,11 +506,25 @@ function BookingGroup({
               )}
               {b.status === "confirmed" && (
                 <button
-                  onClick={() => actions.completeM.mutate(b.id)}
-                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  onClick={() => actions.startM.mutate(b.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition"
                 >
-                  Mark complete
+                  <Play className="h-3.5 w-3.5 fill-current" /> Start Session
                 </button>
+              )}
+              {b.status === "in_progress" && (
+                <>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                    Live Session In Progress
+                  </span>
+                  <button
+                    onClick={() => actions.completeM.mutate(b.id)}
+                    className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition"
+                  >
+                    Mark Complete
+                  </button>
+                </>
               )}
               {b.status === "completed" && b.payment_id && b.payment_status !== "released" && (
                 <button

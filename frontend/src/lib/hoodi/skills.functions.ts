@@ -3,9 +3,37 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const TEACHER_COLS =
-  "user_id, headline, bio, experience_years, hourly_rate, availability, availability_slots, is_published, teaching_mode, meeting_provider, meeting_link, languages, latitude, longitude, city, state, country, formatted_address, created_at, updated_at";
+  "user_id, headline, bio, experience_years, hourly_rate, availability, availability_slots, is_published, teaching_mode, meeting_provider, meeting_link, languages, is_verified_teacher, portfolio_items, certifications, latitude, longitude, city, state, country, formatted_address, created_at, updated_at";
 const OFFERING_COLS =
   "id, teacher_id, title, description, category, price_per_session, duration_minutes, is_published, created_at, updated_at";
+
+export type PortfolioItem = {
+  id: string;
+  title: string;
+  description?: string;
+  url: string;
+  media_type?: "image" | "link" | "github" | "video";
+};
+
+export type Certification = {
+  id: string;
+  title: string;
+  issuer: string;
+  year?: string | number;
+  credential_url?: string;
+};
+
+export type LearnerProfile = {
+  user_id: string;
+  learning_goals: string[];
+  target_skills: string[];
+  skill_level: "beginner" | "intermediate" | "advanced" | "all";
+  preferred_schedule: "weekday_evenings" | "weekend_mornings" | "weekends" | "flexible";
+  budget_max: number;
+  mode_preference: "online" | "offline" | "both";
+  created_at?: string;
+  updated_at?: string;
+};
 
 /* ------------------------------- Teacher profile ------------------------------- */
 
@@ -31,6 +59,31 @@ const TeacherProfileInput = z.object({
   meeting_provider: z.enum(["google_meet", "zoom", "teams"]).nullable().optional(),
   meeting_link: z.string().url().max(500).nullable().optional(),
   languages: z.array(z.string().min(1).max(40)).max(10).optional(),
+  is_verified_teacher: z.boolean().optional(),
+  portfolio_items: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).max(120),
+        description: z.string().max(500).optional(),
+        url: z.string().url(),
+        media_type: z.enum(["image", "link", "github", "video"]).optional(),
+      }),
+    )
+    .max(20)
+    .optional(),
+  certifications: z
+    .array(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).max(120),
+        issuer: z.string().min(1).max(120),
+        year: z.union([z.string(), z.number()]).optional(),
+        credential_url: z.string().url().optional(),
+      }),
+    )
+    .max(20)
+    .optional(),
   availability_slots: z
     .array(
       z.object({
@@ -56,6 +109,76 @@ export const upsertMyTeacherProfile = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     return row;
+  });
+
+/* ------------------------------- Learner profile ------------------------------- */
+
+export const getMyLearnerProfile = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<LearnerProfile | null> => {
+    const { data, error } = await context.supabase
+      .from("learner_profiles")
+      .select("*")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+    return {
+      user_id: data.user_id,
+      learning_goals: data.learning_goals ?? [],
+      target_skills: data.target_skills ?? [],
+      skill_level: data.skill_level ?? "beginner",
+      preferred_schedule: data.preferred_schedule ?? "flexible",
+      budget_max: Number(data.budget_max ?? 1000),
+      mode_preference: data.mode_preference ?? "both",
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    };
+  });
+
+const LearnerProfileInput = z.object({
+  learning_goals: z.array(z.string().min(1).max(100)).max(20).optional(),
+  target_skills: z.array(z.string().min(1).max(100)).max(20).optional(),
+  skill_level: z.enum(["beginner", "intermediate", "advanced", "all"]).optional(),
+  preferred_schedule: z
+    .enum(["weekday_evenings", "weekend_mornings", "weekends", "flexible"])
+    .optional(),
+  budget_max: z.number().min(0).max(100000).optional(),
+  mode_preference: z.enum(["online", "offline", "both"]).optional(),
+});
+
+export const upsertMyLearnerProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => LearnerProfileInput.parse(input))
+  .handler(async ({ data, context }): Promise<LearnerProfile> => {
+    const { data: row, error } = await context.supabase
+      .from("learner_profiles")
+      .upsert(
+        {
+          user_id: context.userId,
+          learning_goals: data.learning_goals ?? [],
+          target_skills: data.target_skills ?? [],
+          skill_level: data.skill_level ?? "beginner",
+          preferred_schedule: data.preferred_schedule ?? "flexible",
+          budget_max: data.budget_max ?? 1000,
+          mode_preference: data.mode_preference ?? "both",
+        },
+        { onConflict: "user_id" },
+      )
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return {
+      user_id: row.user_id,
+      learning_goals: row.learning_goals ?? [],
+      target_skills: row.target_skills ?? [],
+      skill_level: row.skill_level,
+      preferred_schedule: row.preferred_schedule,
+      budget_max: Number(row.budget_max),
+      mode_preference: row.mode_preference,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    };
   });
 
 /* --------------------------------- Offerings --------------------------------- */
@@ -132,6 +255,7 @@ const BrowseInput = z.object({
   category: z.string().max(64).optional(),
   maxPrice: z.number().min(0).optional(),
   minRating: z.number().min(0).max(5).optional(),
+  mode: z.enum(["online", "offline", "both"]).optional(),
   lat: z.number().optional(),
   lng: z.number().optional(),
   radiusM: z.number().int().min(500).max(200000).optional(),
@@ -152,6 +276,10 @@ export type TeacherCard = {
   formatted_address: string | null;
   latitude: number | null;
   longitude: number | null;
+  is_verified_teacher: boolean;
+  portfolio_items: PortfolioItem[];
+  certifications: Certification[];
+  languages: string[];
   avg_score: number | null;
   rating_count: number;
   min_price: number | null;
@@ -212,6 +340,16 @@ export const browseTeachers = createServerFn({ method: "POST" })
             (r as { formatted_address: string | null }).formatted_address ?? p?.formatted_address ?? null,
           latitude: (r as { latitude: number | null }).latitude ?? p?.latitude ?? null,
           longitude: (r as { longitude: number | null }).longitude ?? p?.longitude ?? null,
+          is_verified_teacher: Boolean((r as { is_verified_teacher?: boolean }).is_verified_teacher),
+          portfolio_items: (Array.isArray((r as { portfolio_items?: unknown }).portfolio_items)
+            ? (r as { portfolio_items: PortfolioItem[] }).portfolio_items
+            : []) as PortfolioItem[],
+          certifications: (Array.isArray((r as { certifications?: unknown }).certifications)
+            ? (r as { certifications: Certification[] }).certifications
+            : []) as Certification[],
+          languages: (Array.isArray((r as { languages?: unknown }).languages)
+            ? (r as { languages: string[] }).languages
+            : []) as string[],
           avg_score: null,
           rating_count: 0,
           min_price: null,
@@ -236,16 +374,22 @@ export const browseTeachers = createServerFn({ method: "POST" })
 
     const { data: slotRows } = await context.supabase
       .from("teacher_profiles")
-      .select("user_id, availability_slots")
+      .select("user_id, availability_slots, is_verified_teacher, portfolio_items, certifications, languages")
       .in("user_id", ids);
-    const slotMap = new Map(
+    const metaMap = new Map(
       (slotRows ?? []).map((r) => [
         r.user_id as string,
-        (Array.isArray(r.availability_slots) ? r.availability_slots : []) as {
-          day: number;
-          start: string;
-          end: string;
-        }[],
+        {
+          slots: (Array.isArray(r.availability_slots) ? r.availability_slots : []) as {
+            day: number;
+            start: string;
+            end: string;
+          }[],
+          is_verified: Boolean(r.is_verified_teacher),
+          portfolio: (Array.isArray(r.portfolio_items) ? r.portfolio_items : []) as PortfolioItem[],
+          certs: (Array.isArray(r.certifications) ? r.certifications : []) as Certification[],
+          langs: (Array.isArray(r.languages) ? r.languages : []) as string[],
+        },
       ]),
     );
 
@@ -271,6 +415,7 @@ export const browseTeachers = createServerFn({ method: "POST" })
           duration_minutes: o.duration_minutes,
         }));
       const agg = ratingMap.get(tid);
+      const meta = metaMap.get(tid);
       return {
         teacher_id: tid,
         name: (t.name as string) ?? null,
@@ -286,11 +431,15 @@ export const browseTeachers = createServerFn({ method: "POST" })
         formatted_address: (t.formatted_address as string) ?? null,
         latitude: t.latitude == null ? null : Number(t.latitude),
         longitude: t.longitude == null ? null : Number(t.longitude),
+        is_verified_teacher: meta?.is_verified ?? Boolean(t.is_verified_teacher),
+        portfolio_items: meta?.portfolio ?? (t.portfolio_items as PortfolioItem[]) ?? [],
+        certifications: meta?.certs ?? (t.certifications as Certification[]) ?? [],
+        languages: meta?.langs ?? (t.languages as string[]) ?? [],
         avg_score: agg ? Math.round((agg.sum / agg.count) * 100) / 100 : null,
         rating_count: agg?.count ?? 0,
         min_price: own.length ? Math.min(...own.map((o) => o.price_per_session)) : null,
         offering_count: own.length,
-        availability_slots: slotMap.get(tid) ?? [],
+        availability_slots: meta?.slots ?? [],
         offerings: own,
       };
     });
@@ -300,6 +449,10 @@ export const browseTeachers = createServerFn({ method: "POST" })
       .filter((c) =>
         !data.category ? true : c.offerings.some((o) => o.category === data.category),
       )
+      .filter((c) => {
+        if (!data.mode || data.mode === "both") return true;
+        return c.teaching_mode === "both" || c.teaching_mode === data.mode;
+      })
       .filter((c) =>
         !q
           ? true

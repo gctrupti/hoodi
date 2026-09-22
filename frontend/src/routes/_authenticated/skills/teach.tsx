@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { GraduationCap, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Award, CheckCircle2, ExternalLink, GraduationCap, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SuggestCategory } from "@/components/hoodi/SuggestCategory";
 import {
@@ -12,6 +12,8 @@ import {
   createOffering,
   updateOffering,
   deleteOffering,
+  type PortfolioItem,
+  type Certification,
 } from "@/lib/hoodi/skills.functions";
 import { inr } from "@/lib/hoodi/format";
 import {
@@ -63,6 +65,21 @@ function TeachPage() {
   const [meetingProvider, setMeetingProvider] = useState<"google_meet" | "zoom" | "teams">("google_meet");
   const [meetingLink, setMeetingLink] = useState("");
   const [languages, setLanguages] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [certs, setCerts] = useState<Certification[]>([]);
+
+  // New portfolio item form
+  const [newPortTitle, setNewPortTitle] = useState("");
+  const [newPortUrl, setNewPortUrl] = useState("");
+  const [newPortDesc, setNewPortDesc] = useState("");
+  const [newPortType, setNewPortType] = useState<"link" | "github" | "image" | "video">("link");
+
+  // New certification form
+  const [newCertTitle, setNewCertTitle] = useState("");
+  const [newCertIssuer, setNewCertIssuer] = useState("");
+  const [newCertYear, setNewCertYear] = useState("");
+  const [newCertUrl, setNewCertUrl] = useState("");
 
   useEffect(() => {
     const p = profile.data;
@@ -78,10 +95,16 @@ function TeachPage() {
       meeting_provider?: string | null;
       meeting_link?: string | null;
       languages?: string[] | null;
+      is_verified_teacher?: boolean | null;
+      portfolio_items?: PortfolioItem[] | null;
+      certifications?: Certification[] | null;
     };
     setMeetingProvider((pm.meeting_provider as "google_meet" | "zoom" | "teams") ?? "google_meet");
     setMeetingLink(pm.meeting_link ?? "");
     setLanguages((pm.languages ?? []).join(", "));
+    setIsVerified(Boolean(pm.is_verified_teacher));
+    setPortfolio(Array.isArray(pm.portfolio_items) ? pm.portfolio_items : []);
+    setCerts(Array.isArray(pm.certifications) ? pm.certifications : []);
   }, [profile.data]);
 
   const saveProfile = useMutation({
@@ -102,6 +125,9 @@ function TeachPage() {
             .map((l) => l.trim())
             .filter(Boolean)
             .slice(0, 10),
+          is_verified_teacher: isVerified,
+          portfolio_items: portfolio,
+          certifications: certs,
           ...(patch ?? {}),
         },
       }),
@@ -380,7 +406,235 @@ function TeachPage() {
             </button>
           )}
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-50/50 p-3.5 dark:bg-emerald-950/20">
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                isVerified ? "bg-emerald-500 text-white" : "bg-muted text-ink-soft"
+              }`}
+            >
+              {isVerified ? <CheckCircle2 className="h-5 w-5" /> : <Award className="h-5 w-5" />}
+            </div>
+            <div>
+              <p className="text-xs font-bold text-ink">
+                {isVerified ? "Verified Neighborhood Instructor" : "Teacher Verification Status"}
+              </p>
+              <p className="text-[11px] text-ink-soft">
+                {isVerified
+                  ? "Your credentials, portfolio, and identity are verified by Hoodi Trust."
+                  : "Enable your verified instructor badge to build trust with local learners."}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsVerified((v) => !v)}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+              isVerified
+                ? "border border-emerald-500/30 bg-white text-emerald-700 hover:bg-emerald-50 dark:bg-zinc-900 dark:text-emerald-400"
+                : "bg-emerald-600 text-white hover:bg-emerald-700"
+            }`}
+          >
+            {isVerified ? "Verified ✓" : "Activate Verified Badge"}
+          </button>
+        </div>
+
+        <div className="mt-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+              Portfolio & Work Samples ({portfolio.length})
+            </h3>
+          </div>
+          <p className="mt-1 text-xs text-ink-soft">
+            Showcase projects, GitHub repositories, audio tracks, or videos of your work.
+          </p>
+
+          {portfolio.length > 0 && (
+            <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+              {portfolio.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-start justify-between rounded-xl border border-border bg-card p-2.5 text-xs"
+                >
+                  <div className="min-w-0 pr-2">
+                    <p className="font-semibold text-ink truncate">{item.title}</p>
+                    {item.description && (
+                      <p className="text-[11px] text-ink-soft line-clamp-1">{item.description}</p>
+                    )}
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" /> View sample
+                    </a>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPortfolio((prev) => prev.filter((p) => p.id !== item.id))}
+                    className="text-ink-soft hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-3 rounded-xl border border-dashed border-border bg-card/50 p-3">
+            <p className="text-[11px] font-semibold text-ink">Add a portfolio project</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <input
+                value={newPortTitle}
+                onChange={(e) => setNewPortTitle(e.target.value)}
+                placeholder="Project title (e.g. Acoustic Album or React Store)"
+                className={inputClass}
+              />
+              <input
+                value={newPortUrl}
+                onChange={(e) => setNewPortUrl(e.target.value)}
+                placeholder="https://... URL"
+                className={inputClass}
+              />
+              <input
+                value={newPortDesc}
+                onChange={(e) => setNewPortDesc(e.target.value)}
+                placeholder="Short description (optional)"
+                className={`sm:col-span-2 ${inputClass}`}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!newPortTitle.trim() || !newPortUrl.trim()) {
+                  toast.error("Please provide both title and URL.");
+                  return;
+                }
+                setPortfolio((prev) => [
+                  ...prev,
+                  {
+                    id: crypto.randomUUID(),
+                    title: newPortTitle.trim(),
+                    url: newPortUrl.trim(),
+                    description: newPortDesc.trim() || undefined,
+                    media_type: newPortType,
+                  },
+                ]);
+                setNewPortTitle("");
+                setNewPortUrl("");
+                setNewPortDesc("");
+              }}
+              className="mt-2 inline-flex items-center gap-1 rounded-full bg-sand px-3 py-1.5 text-xs font-semibold text-ink hover:bg-border transition"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add to portfolio
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-ink-soft">
+              Certifications & Credentials ({certs.length})
+            </h3>
+          </div>
+          <p className="mt-1 text-xs text-ink-soft">
+            Add recognized diplomas, certificates, licenses, or awards.
+          </p>
+
+          {certs.length > 0 && (
+            <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+              {certs.map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-start justify-between rounded-xl border border-border bg-card p-2.5 text-xs"
+                >
+                  <div className="min-w-0 pr-2">
+                    <p className="font-semibold text-ink truncate">{c.title}</p>
+                    <p className="text-[11px] text-ink-soft">
+                      {c.issuer} {c.year ? `· ${c.year}` : ""}
+                    </p>
+                    {c.credential_url && (
+                      <a
+                        href={c.credential_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" /> Verify credential
+                      </a>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCerts((prev) => prev.filter((x) => x.id !== c.id))}
+                    className="text-ink-soft hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-3 rounded-xl border border-dashed border-border bg-card/50 p-3">
+            <p className="text-[11px] font-semibold text-ink">Add a certificate</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <input
+                value={newCertTitle}
+                onChange={(e) => setNewCertTitle(e.target.value)}
+                placeholder="Certificate title"
+                className={inputClass}
+              />
+              <input
+                value={newCertIssuer}
+                onChange={(e) => setNewCertIssuer(e.target.value)}
+                placeholder="Issuing body / Academy"
+                className={inputClass}
+              />
+              <input
+                value={newCertYear}
+                onChange={(e) => setNewCertYear(e.target.value)}
+                placeholder="Year (e.g. 2024)"
+                className={inputClass}
+              />
+              <input
+                value={newCertUrl}
+                onChange={(e) => setNewCertUrl(e.target.value)}
+                placeholder="Credential link (optional)"
+                className={`sm:col-span-3 ${inputClass}`}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!newCertTitle.trim() || !newCertIssuer.trim()) {
+                  toast.error("Please provide certificate title and issuing body.");
+                  return;
+                }
+                setCerts((prev) => [
+                  ...prev,
+                  {
+                    id: crypto.randomUUID(),
+                    title: newCertTitle.trim(),
+                    issuer: newCertIssuer.trim(),
+                    year: newCertYear.trim() || undefined,
+                    credential_url: newCertUrl.trim() || undefined,
+                  },
+                ]);
+                setNewCertTitle("");
+                setNewCertIssuer("");
+                setNewCertYear("");
+                setNewCertUrl("");
+              }}
+              className="mt-2 inline-flex items-center gap-1 rounded-full bg-sand px-3 py-1.5 text-xs font-semibold text-ink hover:bg-border transition"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add certificate
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
           <button
             onClick={() => saveProfile.mutate(undefined)}
             disabled={saveProfile.isPending}
