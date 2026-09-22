@@ -12,7 +12,7 @@ type Category = (typeof CATEGORIES)[number];
 type Urgency = (typeof URGENCIES)[number];
 
 const REQUEST_COLUMNS =
-  "id, requester_id, helper_id, title, description, category, urgency, status, request_type, pickup_name, pickup_address, pickup_lat, pickup_lng, dropoff_name, dropoff_address, dropoff_lat, dropoff_lng, ai_suggested_category, ai_suggested_urgency, ai_confidence, is_paid, estimated_fare, final_fare, commission_amount, payment_id, photo_url, address_text, accepted_at, completed_at, cancelled_at, created_at, updated_at";
+  "id, requester_id, helper_id, title, description, category, urgency, status, delivery_stage, request_type, pickup_name, pickup_address, pickup_lat, pickup_lng, dropoff_name, dropoff_address, dropoff_lat, dropoff_lng, ai_suggested_category, ai_suggested_urgency, ai_confidence, is_paid, estimated_fare, final_fare, commission_amount, payment_id, photo_url, address_text, accepted_at, completed_at, cancelled_at, created_at, updated_at";
 
 const REQUEST_TYPES = [
   "pickup_delivery",
@@ -271,17 +271,302 @@ export const deleteRequest = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const EditRequestInput = z.object({
+  requestId: z.string().uuid(),
+  title: z.string().min(3).max(200),
+  description: z.string().max(2000).optional().default(""),
+  category: CATEGORY_ENUM.optional(),
+  urgency: URGENCY_ENUM.optional(),
+  estimated_fare: z.number().nullable().optional(),
+  address_text: z.string().max(500).nullable().optional(),
+  pickup_name: z.string().max(200).nullable().optional(),
+  pickup_address: z.string().max(500).nullable().optional(),
+  dropoff_name: z.string().max(200).nullable().optional(),
+  dropoff_address: z.string().max(500).nullable().optional(),
+});
+
+export const editHelpRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => EditRequestInput.parse(input))
+  .handler(async ({ data, context }) => {
+    // Only requester can edit when request is open
+    const { data: existing, error: findErr } = await context.supabase
+      .from("help_requests")
+      .select("id, requester_id, status")
+      .eq("id", data.requestId)
+      .single();
+    if (findErr) throw new Error(findErr.message);
+    if (existing.requester_id !== context.userId) throw new Error("Unauthorized to edit this request.");
+    if (existing.status !== "open") throw new Error("Only open requests can be edited.");
+
+    const { data: updated, error } = await context.supabase
+      .from("help_requests")
+      .update({
+        title: data.title,
+        description: data.description,
+        ...(data.category ? { category: data.category } : {}),
+        ...(data.urgency ? { urgency: data.urgency } : {}),
+        ...(data.estimated_fare !== undefined ? { estimated_fare: data.estimated_fare } : {}),
+        address_text: data.address_text,
+        pickup_name: data.pickup_name,
+        pickup_address: data.pickup_address,
+        dropoff_name: data.dropoff_name,
+        dropoff_address: data.dropoff_address,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.requestId)
+      .select(REQUEST_COLUMNS)
+      .single();
+    if (error) throw new Error(error.message);
+    return updated;
+  });
+
+export const repostRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ requestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: original, error: origErr } = await context.supabase
+      .from("help_requests")
+      .select("*")
+      .eq("id", data.requestId)
+      .single();
+    if (origErr) throw new Error(origErr.message);
+    if (original.requester_id !== context.userId) throw new Error("Only the original requester can repost this.");
+
+    const { data: row, error } = await context.supabase
+      .from("help_requests")
+      .insert({
+        requester_id: context.userId,
+        title: original.title,
+        description: original.description,
+        category: original.category,
+        urgency: original.urgency,
+        is_paid: original.is_paid,
+        estimated_fare: original.estimated_fare,
+        address_text: original.address_text,
+        location: original.location,
+        request_type: original.request_type,
+        pickup_name: original.pickup_name,
+        pickup_address: original.pickup_address,
+        pickup_lat: original.pickup_lat,
+        pickup_lng: original.pickup_lng,
+        dropoff_name: original.dropoff_name,
+        dropoff_address: original.dropoff_address,
+        dropoff_lat: original.dropoff_lat,
+        dropoff_lng: original.dropoff_lng,
+        status: "open",
+        delivery_stage: "accepted",
+      })
+      .select(REQUEST_COLUMNS)
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const cancelRequestWithReason = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        requestId: z.string().uuid(),
+        reason: z.string().min(1).max(200),
+        note: z.string().max(1000).optional().default(""),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: existing, error: readErr } = await context.supabase
+      .from("help_requests")
+      .select("id, requester_id, helper_id, status, title")
+      .eq("id", data.requestId)
+      .single();
+    if (readErr) throw new Error(readErr.message);
+    if (existing.requester_id !== context.userId && existing.helper_id !== context.userId) {
+      throw new Error("Forbidden");
+    }
+
+    if (existing.status === "completed") {
+      throw new Error("Cannot cancel an already completed request.");
+    }
+
+    const { data: row, error } = await context.supabase
+      .from("help_requests")
+      .update({
+        status: "cancelled",
+        cancelled_at: new Date().toISOString(),
+      })
+      .eq("id", data.requestId)
+      .select(REQUEST_COLUMNS)
+      .single();
+    if (error) throw new Error(error.message);
+
+    const otherId = context.userId === existing.requester_id ? existing.helper_id : existing.requester_id;
+    if (otherId) {
+      await context.supabase.rpc("insert_notification" as any, {
+        _user_id: otherId,
+        _type: "status_changed",
+        _request_id: data.requestId,
+        _message: `Request "${existing.title}" was cancelled: ${data.reason}${data.note ? ` (${data.note})` : ""}`,
+      } as any);
+    }
+
+    return row;
+  });
+
+export const updateRequestProgress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        requestId: z.string().uuid(),
+        stage: z.enum(["to_pickup", "arrived", "completed"]),
+        proofPhotoUrl: z.string().url().optional().nullable(),
+        notes: z.string().max(1000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: existing, error: readErr } = await context.supabase
+      .from("help_requests")
+      .select("id, helper_id, requester_id, status, title, is_paid, payment_id")
+      .eq("id", data.requestId)
+      .single();
+    if (readErr) throw new Error(readErr.message);
+    if (existing.helper_id !== context.userId) {
+      throw new Error("Only the assigned helper can update progress.");
+    }
+
+    let patch: Record<string, any> = {};
+    let notificationMsg = "";
+
+    if (data.stage === "to_pickup") {
+      patch = {
+        status: "in_progress",
+        delivery_stage: "to_pickup",
+      };
+      notificationMsg = `Helper is on the way to pick up / start "${existing.title}".`;
+    } else if (data.stage === "arrived") {
+      patch = {
+        status: "in_progress",
+        delivery_stage: "picked_up",
+      };
+      notificationMsg = `Helper has arrived at the location for "${existing.title}".`;
+    } else if (data.stage === "completed") {
+      patch = {
+        status: "completed",
+        delivery_stage: "delivered",
+        completed_at: new Date().toISOString(),
+        ...(data.proofPhotoUrl ? { photo_url: data.proofPhotoUrl } : {}),
+      };
+      notificationMsg = `Helper completed "${existing.title}". Please verify proof & release payment.`;
+    }
+
+    const { data: row, error } = await context.supabase
+      .from("help_requests")
+      .update(patch)
+      .eq("id", data.requestId)
+      .select(REQUEST_COLUMNS)
+      .single();
+    if (error) throw new Error(error.message);
+
+    if (existing.requester_id && notificationMsg) {
+      await context.supabase.rpc("insert_notification" as any, {
+        _user_id: existing.requester_id,
+        _type: "status_changed",
+        _request_id: data.requestId,
+        _message: notificationMsg,
+      } as any);
+    }
+
+    return {
+      request: row,
+      needsPaymentCapture:
+        data.stage === "completed" && Boolean(existing.is_paid) && Boolean(existing.payment_id),
+    };
+  });
+
+export const disputeRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        requestId: z.string().uuid(),
+        reason: z.string().min(1).max(100),
+        details: z.string().min(5).max(1000),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: req, error: reqErr } = await context.supabase
+      .from("help_requests")
+      .select("id, requester_id, helper_id, title")
+      .eq("id", data.requestId)
+      .single();
+    if (reqErr) throw new Error(reqErr.message);
+    if (req.requester_id !== context.userId && req.helper_id !== context.userId) {
+      throw new Error("Forbidden");
+    }
+
+    const targetUserId = context.userId === req.requester_id ? req.helper_id : req.requester_id;
+    if (!targetUserId) throw new Error("Cannot dispute an unassigned request.");
+
+    const { error: reportErr } = await context.supabase.from("user_reports").insert({
+      reporter_id: context.userId,
+      target_user_id: targetUserId,
+      context_type: "help_request",
+      context_id: data.requestId,
+      reason: "other",
+      details: `[DISPUTE: ${data.reason}] ${data.details}`,
+      status: "open",
+    });
+    if (reportErr) throw new Error(reportErr.message);
+
+    await context.supabase.rpc("insert_notification" as any, {
+      _user_id: targetUserId,
+      _type: "status_changed",
+      _request_id: data.requestId,
+      _message: `A dispute was filed on request "${req.title}": ${data.reason}`,
+    } as any);
+
+    return { ok: true };
+  });
+
 export const getRequest = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ requestId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("help_requests")
-      .select(REQUEST_COLUMNS)
+      .select(
+        `${REQUEST_COLUMNS}, helper:profiles!helper_id(id, name, bio, profile_photo_url, phone_verified), requester:profiles!requester_id(id, name, bio, profile_photo_url, phone_verified)`,
+      )
       .eq("id", data.requestId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row;
+    if (!row) return null;
+
+    // Fetch existing rating if completed
+    const { data: rating } = await context.supabase
+      .from("ratings")
+      .select("id, rater_id, ratee_id, score, comment, created_at")
+      .eq("request_id", data.requestId)
+      .maybeSingle();
+
+    // Check if there is an active dispute in user_reports
+    const { data: reports } = await context.supabase
+      .from("user_reports")
+      .select("id, reporter_id, details, created_at, status")
+      .eq("context_id", data.requestId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    const dispute = reports && reports.length > 0 ? reports[0] : null;
+
+    return {
+      ...(row as any),
+      rating: rating ?? null,
+      dispute: dispute ?? null,
+    };
   });
 
 export const listMyRequests = createServerFn({ method: "GET" })
@@ -289,7 +574,9 @@ export const listMyRequests = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("help_requests")
-      .select(REQUEST_COLUMNS)
+      .select(
+        `${REQUEST_COLUMNS}, helper:profiles!helper_id(id, name, bio, profile_photo_url), requester:profiles!requester_id(id, name, bio, profile_photo_url)`,
+      )
       .or(`requester_id.eq.${context.userId},helper_id.eq.${context.userId}`)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -302,7 +589,9 @@ export const listAvailableCommunityRequests = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("help_requests")
-      .select(REQUEST_COLUMNS)
+      .select(
+        `${REQUEST_COLUMNS}, requester:profiles!requester_id(id, name, bio, profile_photo_url)`,
+      )
       .eq("status", "open")
       .order("created_at", { ascending: false })
       .limit(50);

@@ -8,9 +8,22 @@ import {
 } from "@/lib/hoodi/requests.functions";
 import { getMyProfile } from "@/lib/hoodi/profiles.functions";
 import { RequestCard } from "@/components/hoodi/RequestCard";
-import { PlusCircle, Loader2, Compass, CheckCircle2, Sparkles } from "lucide-react";
+import {
+  PlusCircle,
+  Loader2,
+  Compass,
+  CheckCircle2,
+  Sparkles,
+  History,
+  Wallet,
+  Star,
+  FileText,
+  Clock,
+  ArrowRight,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { inr, formatRelative } from "@/lib/hoodi/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/help/dashboard")({
@@ -21,14 +34,15 @@ function Dashboard() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const me = useQuery({ queryKey: ["me"], queryFn: () => getMyProfile() });
-  const list = useQuery({ queryKey: ["my-requests"], queryFn: () => listMyRequests(), refetchInterval: 10_000 });
+  const list = useQuery({ queryKey: ["my-requests"], queryFn: () => listMyRequests(), refetchInterval: 8_000 });
   const openList = useQuery({
     queryKey: ["open-community-requests"],
     queryFn: () => listAvailableCommunityRequests(),
-    refetchInterval: 10_000,
+    refetchInterval: 8_000,
   });
 
-  const [tab, setTab] = useState<"available" | "mine" | "accepted">("available");
+  const [tab, setTab] = useState<"available" | "mine" | "accepted" | "history">("available");
+  const [historyFilter, setHistoryFilter] = useState<"all" | "completed" | "cancelled" | "active">("all");
 
   // Subscribe to real-time changes on help_requests
   useEffect(() => {
@@ -67,8 +81,23 @@ function Dashboard() {
   const openRows: any[] = openList.data ?? [];
 
   const available = openRows.filter((r) => r.status === "open");
-  const mine = rows.filter((r) => r.requester_id === myId);
-  const accepted = rows.filter((r) => r.helper_id === myId);
+  const mine = rows.filter((r) => r.requester_id === myId && r.status !== "completed" && r.status !== "cancelled");
+  const accepted = rows.filter((r) => r.helper_id === myId && (r.status === "accepted" || r.status === "in_progress"));
+
+  // Completed errands for history & earnings calculation
+  const helperCompleted = rows.filter((r) => r.helper_id === myId && r.status === "completed");
+  const totalHelperEarnings = helperCompleted.reduce((acc, r) => {
+    const gross = r.final_fare ?? r.estimated_fare ?? 0;
+    return acc + Math.round(gross * 0.85); // 85% net to helper
+  }, 0);
+
+  // History records (both requested & helped)
+  const historyRecords = rows.filter((r) => {
+    if (historyFilter === "completed") return r.status === "completed";
+    if (historyFilter === "cancelled") return r.status === "cancelled";
+    if (historyFilter === "active") return r.status === "open" || r.status === "accepted" || r.status === "in_progress";
+    return true; // all
+  });
 
   const current = tab === "available" ? available : tab === "mine" ? mine : accepted;
 
@@ -83,7 +112,7 @@ function Dashboard() {
             </span>
           </div>
           <p className="mt-1 text-sm text-ink-soft">
-            See requests from your neighbors, manage tasks you accepted, or ask for a hand.
+            Browse requests from neighbors, manage tasks you accepted, or track earnings & history.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -102,6 +131,7 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Tabs bar */}
       <div className="inline-flex flex-wrap gap-1 rounded-full border border-border bg-card p-1 text-sm">
         <TabButton
           active={tab === "available"}
@@ -112,7 +142,7 @@ function Dashboard() {
         <TabButton
           active={tab === "mine"}
           onClick={() => setTab("mine")}
-          label="My requests"
+          label="My open requests"
           count={mine.length}
         />
         <TabButton
@@ -121,20 +151,168 @@ function Dashboard() {
           label="Accepted tasks"
           count={accepted.length}
         />
+        <TabButton
+          active={tab === "history"}
+          onClick={() => setTab("history")}
+          label="History & Earnings"
+          count={rows.length}
+        />
       </div>
 
-      {list.isLoading && openList.isLoading ? (
+      {/* HISTORY TAB VIEW */}
+      {tab === "history" ? (
+        <div className="space-y-6">
+          {/* Earnings summary banner */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Helper Earnings</span>
+                <Wallet className="h-4 w-4 text-primary" />
+              </div>
+              <div className="mt-2 font-display text-3xl font-extrabold text-primary">{inr(totalHelperEarnings)}</div>
+              <div className="mt-1 text-xs text-ink-soft">
+                Credited across {helperCompleted.length} completed tasks
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-ink-soft uppercase tracking-wider">Completed Errands</span>
+                <CheckCircle2 className="h-4 w-4 text-urgency-normal" />
+              </div>
+              <div className="mt-2 font-display text-3xl font-bold text-ink">{helperCompleted.length}</div>
+              <div className="mt-1 text-xs text-ink-soft">100% mutual aid satisfaction</div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-ink-soft uppercase tracking-wider">Total Interactions</span>
+                <History className="h-4 w-4 text-clay" />
+              </div>
+              <div className="mt-2 font-display text-3xl font-bold text-ink">{rows.length}</div>
+              <div className="mt-1 text-xs text-ink-soft">Combined requests & helper jobs</div>
+            </div>
+          </div>
+
+          {/* History filter chips */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-ink-soft mr-1">Filter by:</span>
+              {[
+                { id: "all", label: "All Records" },
+                { id: "completed", label: "Completed" },
+                { id: "active", label: "Active" },
+                { id: "cancelled", label: "Cancelled" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setHistoryFilter(f.id as any)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-medium transition cursor-pointer",
+                    historyFilter === f.id
+                      ? "border-primary bg-primary text-primary-foreground font-semibold"
+                      : "border-border bg-card text-ink-soft hover:bg-sand",
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* History table */}
+          {historyRecords.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border bg-card p-12 text-center text-ink-soft">
+              No records found for the selected filter.
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-xs">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-sand/60 border-b border-border text-ink-soft">
+                  <tr>
+                    <th className="px-5 py-3.5 font-semibold">Task</th>
+                    <th className="px-5 py-3.5 font-semibold">Role</th>
+                    <th className="px-5 py-3.5 font-semibold">Status</th>
+                    <th className="px-5 py-3.5 font-semibold">Amount</th>
+                    <th className="px-5 py-3.5 font-semibold">Date</th>
+                    <th className="px-5 py-3.5 text-right font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {historyRecords.map((item) => {
+                    const amRequester = item.requester_id === myId;
+                    const fareAmt = item.final_fare ?? item.estimated_fare ?? 0;
+                    return (
+                      <tr key={item.id} className="hover:bg-sand/30 transition">
+                        <td className="px-5 py-3.5">
+                          <Link
+                            to="/help/requests/$id"
+                            params={{ id: item.id }}
+                            className="font-semibold text-ink hover:text-primary hover:underline transition"
+                          >
+                            {item.title}
+                          </Link>
+                          {item.address_text && (
+                            <div className="text-[11px] text-ink-soft truncate max-w-xs">{item.address_text}</div>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+                              amRequester ? "bg-primary/10 text-primary" : "bg-clay-soft text-clay",
+                            )}
+                          >
+                            {amRequester ? "Requester" : "Helper"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span
+                            className={cn(
+                              "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                              item.status === "completed" && "border-primary/40 bg-primary/10 text-primary",
+                              item.status === "cancelled" && "border-urgency-emergency/40 bg-urgency-emergency-soft text-urgency-emergency",
+                              item.status === "in_progress" && "border-urgency-normal/40 bg-urgency-normal-soft text-urgency-normal",
+                              item.status === "accepted" && "border-urgency-today/40 bg-urgency-today-soft text-urgency-today",
+                              item.status === "open" && "border-border bg-sand text-ink",
+                            )}
+                          >
+                            {item.status.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 font-bold text-ink">
+                          {item.is_paid === false ? "Free" : inr(fareAmt)}
+                        </td>
+                        <td className="px-5 py-3.5 text-ink-soft">{formatRelative(item.created_at)}</td>
+                        <td className="px-5 py-3.5 text-right">
+                          <Link
+                            to="/help/requests/$id"
+                            params={{ id: item.id }}
+                            className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-ink hover:bg-sand transition"
+                          >
+                            Details <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : list.isLoading && openList.isLoading ? (
         <div className="grid place-items-center py-16">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
       ) : current.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-14 text-center">
+        <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center shadow-xs">
           <p className="font-display text-xl text-ink">
             {tab === "available"
               ? "No pending requests in your neighborhood right now."
               : tab === "mine"
-                ? "You haven't posted any requests yet."
-                : "You haven't accepted any tasks yet."}
+                ? "You have no active open requests."
+                : "You have no accepted active tasks right now."}
           </p>
           <p className="mt-2 text-sm text-ink-soft">
             {tab === "available" ? (
@@ -143,9 +321,9 @@ function Dashboard() {
                 <br />
                 You can also{" "}
                 <Link to="/help/ask" className="font-semibold text-primary underline underline-offset-4">
-                  post a test request
+                  post an errand request
                 </Link>{" "}
-                to try it out!
+                to get started!
               </>
             ) : tab === "mine" ? (
               <>
@@ -237,7 +415,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold transition cursor-pointer",
+        "inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-semibold transition cursor-pointer text-xs",
         active ? "bg-ink text-background shadow-xs" : "text-ink-soft hover:bg-sand",
       )}
     >

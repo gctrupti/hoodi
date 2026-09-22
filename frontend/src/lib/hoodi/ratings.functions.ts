@@ -48,3 +48,16 @@ export const getUserRatingSummary = createServerFn({ method: "GET" })
       rating_count: Number(r?.rating_count ?? 0),
     };
   });
+
+export const getRatingForRequest = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ requestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("ratings")
+      .select("id, request_id, rater_id, ratee_id, score, comment, created_at")
+      .eq("request_id", data.requestId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });

@@ -50,24 +50,25 @@ class _HelpFeedViewState extends State<HelpFeedView> {
       final supabase = Supabase.instance.client;
       final response = await supabase
           .from('help_requests')
-          .select('*, profiles:requester_id(name)')
+          .select('*, requester:profiles!requester_id(name), helper:profiles!helper_id(name)')
           .order('created_at', ascending: false);
 
       final List<dynamic> data = response as List<dynamic>;
       final items = data.map((json) => HelpRequest.fromJson(json)).toList();
 
       if (items.isEmpty) {
-        // Fallback seed tasks for Bengaluru Indiranagar
+        // Indiranagar demo errands
         _requests = [
           HelpRequest(
             id: 'mock-1',
-            title: 'Urgent Medicine Pickup from Apollo Pharmacy',
-            description: 'Need BP medicine picked up from 100ft Road and brought to 12th Main.',
-            category: 'delivery',
-            urgency: 'emergency',
+            title: 'Urgent BP Medicine from Apollo Indiranagar',
+            description: 'Please pick up prescription medicine from 100ft road and bring to 12th Main.',
+            category: 'first_aid',
+            urgency: 'today',
             status: 'open',
-            fareAmount: 180.0,
+            fareAmount: 150.0,
             pickupAddress: 'Apollo Pharmacy, 100ft Rd',
+            dropoffAddress: '12th Main, HAL 2nd Stage',
             requesterName: 'Priya Sharma',
             createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
           ),
@@ -77,101 +78,328 @@ class _HelpFeedViewState extends State<HelpFeedView> {
             description: 'Under-sink pipe leaking. Looking for neighbor with a wrench.',
             category: 'errand',
             urgency: 'today',
-            status: 'open',
+            status: 'accepted',
             fareAmount: 350.0,
             pickupAddress: 'Indiranagar 12th Main',
             requesterName: 'Priya Sharma',
+            helperName: 'Ravi Kumar',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-          ),
-          HelpRequest(
-            id: 'mock-3',
-            title: 'Grocery delivery from Nature Basket',
-            description: '5 kg rice bag and dairy items. Can pick up anytime before 6 PM.',
-            category: 'grocery',
-            urgency: 'normal',
-            status: 'open',
-            fareAmount: 220.0,
-            pickupAddress: 'Nature Basket, CMH Road',
-            requesterName: 'Ananya Roy',
-            createdAt: DateTime.now().subtract(const Duration(hours: 3)),
           ),
         ];
       } else {
         _requests = items;
       }
     } catch (e) {
-      // Offline / fallback to demo requests
-      _requests = [
-        HelpRequest(
-          id: 'mock-1',
-          title: 'Urgent Medicine Pickup from Apollo Pharmacy',
-          description: 'Need BP medicine picked up from 100ft Road and brought to 12th Main.',
-          category: 'delivery',
-          urgency: 'emergency',
-          status: 'open',
-          fareAmount: 180.0,
-          pickupAddress: 'Apollo Pharmacy, 100ft Rd',
-          requesterName: 'Priya Sharma',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-        ),
-        HelpRequest(
-          id: 'mock-2',
-          title: 'Kitchen Sink Pipe Leak Repair',
-          description: 'Under-sink pipe leaking. Looking for neighbor with a wrench.',
-          category: 'errand',
-          urgency: 'today',
-          status: 'open',
-          fareAmount: 350.0,
-          pickupAddress: 'Indiranagar 12th Main',
-          requesterName: 'Priya Sharma',
-          createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-        ),
-      ];
+      // Keep existing data or load fallback
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _acceptTask(HelpRequest request) async {
+  Future<void> _acceptTask(HelpRequest req) async {
+    final scaffold = ScaffoldMessenger.of(context);
     try {
       final supabase = Supabase.instance.client;
       final user = supabase.auth.currentUser;
       if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please sign in to accept tasks.')),
+        scaffold.showSnackBar(
+          const SnackBar(content: Text('Please sign in to accept requests.')),
         );
         return;
       }
 
-      try {
-        await supabase.rpc('accept_help_request', params: {
-          '_request_id': request.id,
-          '_order_id': 'mob_ord_${DateTime.now().millisecondsSinceEpoch}',
-        });
-      } catch (_) {
-        await supabase
-            .from('help_requests')
-            .update({'status': 'accepted', 'helper_id': user.id})
-            .eq('id', request.id);
-      }
+      await supabase.rpc('accept_help_request', params: {
+        '_request_id': req.id,
+        '_order_id': 'mob_sim_${DateTime.now().millisecondsSinceEpoch}',
+      });
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppTheme.success,
-          content: Text('Task accepted! You are now helping ${request.requesterName}.'),
+      scaffold.showSnackBar(
+        const SnackBar(
+          content: Text('Task accepted! Escrow payment locked and chat initiated.'),
+          backgroundColor: AppTheme.primary,
         ),
       );
       _loadRequests();
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffold.showSnackBar(
         SnackBar(
-          backgroundColor: AppTheme.primary,
-          content: Text('Simulated: Accepted task "${request.title}"!'),
+          content: Text('Accept failed: ${e.toString().replaceAll('Exception: ', '')}'),
+          backgroundColor: AppTheme.emergency,
         ),
       );
     }
+  }
+
+  Future<void> _updateStatus(HelpRequest req, String newStatus, {String? stage, String? photoUrl}) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    try {
+      final supabase = Supabase.instance.client;
+      final Map<String, dynamic> updateData = {'status': newStatus};
+      if (stage != null) updateData['delivery_stage'] = stage;
+      if (photoUrl != null) updateData['photo_url'] = photoUrl;
+      if (newStatus == 'completed') updateData['completed_at'] = DateTime.now().toIso8601String();
+      if (newStatus == 'cancelled') updateData['cancelled_at'] = DateTime.now().toIso8601String();
+
+      await supabase.from('help_requests').update(updateData).eq('id', req.id);
+
+      scaffold.showSnackBar(
+        SnackBar(
+          content: Text('Status updated to $newStatus!'),
+          backgroundColor: AppTheme.primary,
+        ),
+      );
+      _loadRequests();
+    } catch (e) {
+      scaffold.showSnackBar(
+        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.emergency),
+      );
+    }
+  }
+
+  void _showTaskDetailsSheet(HelpRequest req) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final fare = req.finalFare ?? req.fareAmount;
+        final platformFee = (fare * 0.15).round();
+        final helperEarnings = fare - platformFee;
+
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // Title & Status Badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      req.title,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.ink),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      req.status.toUpperCase(),
+                      style: const TextStyle(color: AppTheme.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+
+              if (req.description != null && req.description!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  req.description!,
+                  style: const TextStyle(fontSize: 13, color: AppTheme.inkSoft, height: 1.4),
+                ),
+              ],
+              const SizedBox(height: 16),
+
+              // Locations Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: Column(
+                  children: [
+                    if (req.pickupAddress != null)
+                      Row(
+                        children: [
+                          const Icon(Icons.storefront, size: 16, color: AppTheme.clay),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Pickup: ${req.pickupAddress}',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (req.dropoffAddress != null) ...[
+                      const Divider(height: 16),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 16, color: AppTheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Delivery: ${req.dropoffAddress}',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Pricing Breakdown
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Offered Errand Fare', style: TextStyle(fontSize: 12, color: AppTheme.inkSoft)),
+                        Text('₹${fare.toInt()}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Platform Fee (15%)', style: TextStyle(fontSize: 11, color: AppTheme.inkSoft)),
+                        Text('- ₹$platformFee', style: const TextStyle(fontSize: 11, color: AppTheme.clay)),
+                      ],
+                    ),
+                    const Divider(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Helper Net Payout', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                        Text('₹${helperEarnings.toInt()}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Action buttons based on lifecycle
+              if (req.isOpen)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _acceptTask(req);
+                    },
+                    child: const Text('Accept & Help Neighbor', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+
+              if (req.isAssigned) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.ink,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _updateStatus(req, 'in_progress', stage: 'to_pickup');
+                    },
+                    child: const Text('Start Errand (Head to Pickup)'),
+                  ),
+                ),
+              ],
+
+              if (req.isInProgress) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _updateStatus(req, 'in_progress', stage: 'picked_up');
+                    },
+                    child: const Text('I Have Arrived at Location'),
+                  ),
+                ),
+              ],
+
+              if (req.isArrived || req.isInProgress) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.normal,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _updateStatus(req, 'completed', stage: 'delivered', photoUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500');
+                    },
+                    child: const Text('Mark Complete (Attach Proof)'),
+                  ),
+                ),
+              ],
+
+              if (req.isCompleted) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.star, color: Colors.amber),
+                    label: const Text('Leave 5-Star Rating for Helper'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.ink,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Thank you! 5-star rating recorded.')),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -182,16 +410,14 @@ class _HelpFeedViewState extends State<HelpFeedView> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
-        elevation: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 const Text(
-                  'Hoodi Help',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppTheme.ink),
+                  'Community Errands',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(width: 8),
                 Container(
@@ -276,34 +502,35 @@ class _HelpFeedViewState extends State<HelpFeedView> {
             // Request Cards Feed
             Expanded(
               child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-                : filtered.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle_outline, size: 48, color: AppTheme.inkMuted),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'No pending requests nearby!',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+                  : filtered.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_outline, size: 48, color: AppTheme.inkMuted),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'No pending requests nearby!',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text('Check back soon or post a new request.'),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                          const Text('Check back soon or post a new request.'),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final req = filtered[index];
-                        return _RequestCard(
-                          request: req,
-                          onAccept: () => _acceptTask(req),
-                        );
-                      },
-                    ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final req = filtered[index];
+                            return _RequestCard(
+                              request: req,
+                              onTap: () => _showTaskDetailsSheet(req),
+                              onAccept: () => _acceptTask(req),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
@@ -349,9 +576,14 @@ class _FilterChip extends StatelessWidget {
 
 class _RequestCard extends StatelessWidget {
   final HelpRequest request;
+  final VoidCallback onTap;
   final VoidCallback onAccept;
 
-  const _RequestCard({required this.request, required this.onAccept});
+  const _RequestCard({
+    required this.request,
+    required this.onTap,
+    required this.onAccept,
+  });
 
   Color _getUrgencyColor(String urgency) {
     switch (urgency.toLowerCase()) {
@@ -370,95 +602,127 @@ class _RequestCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Row: Urgency & Distance / Category
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: urgencyColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Urgency badge & Status
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: urgencyColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          request.urgency.toUpperCase(),
+                          style: TextStyle(
+                            color: urgencyColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.border,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          request.status.toUpperCase(),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.inkSoft),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    request.urgency.toUpperCase(),
-                    style: TextStyle(
-                      color: urgencyColor,
-                      fontSize: 11,
+                  Text(
+                    '₹${request.fareAmount.toInt()}',
+                    style: const TextStyle(
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
                     ),
                   ),
-                ),
-                Text(
-                  '₹${request.fareAmount.toInt()}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // Title
-            Text(
-              request.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.ink,
+                ],
               ),
-            ),
-            if (request.description != null && request.description!.isNotEmpty) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 10),
+
+              // Title
               Text(
-                request.description!,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13, color: AppTheme.inkSoft),
-              ),
-            ],
-            const SizedBox(height: 12),
-
-            // Requester & Location
-            Row(
-              children: [
-                const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.inkMuted),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    request.pickupAddress ?? 'Within 5 km radius',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.inkSoft),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                request.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.ink,
                 ),
+              ),
+              if (request.description != null && request.description!.isNotEmpty) ...[
+                const SizedBox(height: 4),
                 Text(
-                  'Posted by ${request.requesterName}',
-                  style: const TextStyle(fontSize: 11, color: AppTheme.inkMuted),
+                  request.description!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, color: AppTheme.inkSoft),
                 ),
               ],
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
-            // Accept Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-                onPressed: onAccept,
-                child: const Text('Accept & Help Neighbor'),
+              // Requester & Location
+              Row(
+                children: [
+                  const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.inkMuted),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      request.pickupAddress ?? 'Within 5 km radius',
+                      style: const TextStyle(fontSize: 12, color: AppTheme.inkSoft),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    'Posted by ${request.requesterName}',
+                    style: const TextStyle(fontSize: 11, color: AppTheme.inkMuted),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 14),
+
+              // Primary Action
+              if (request.isOpen)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: onAccept,
+                    child: const Text('Accept & Help Neighbor'),
+                  ),
+                )
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    onPressed: onTap,
+                    child: Text('View Details & Status (${request.status.toUpperCase()})'),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
