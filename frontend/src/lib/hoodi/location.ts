@@ -5,7 +5,7 @@
 
 export type Coords = { lat: number; lng: number };
 
-export const RADIUS_OPTIONS = [1000, 5000, 10000, 25000] as const;
+export const RADIUS_OPTIONS = [1000, 2000, 5000, 10000, 20000] as const;
 export const DEFAULT_RADIUS_M = 5000;
 
 const CACHE_KEY = "hoodi.location.v1";
@@ -109,4 +109,40 @@ export function googleMapsUrl(lat: number, lng: number): string {
 
 export function googleDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+
+export function calculateHaversineDistance(c1: Coords, c2: Coords): number {
+  const R = 6371000; // Earth radius in meters
+  const dLat = ((c2.lat - c1.lat) * Math.PI) / 180;
+  const dLng = ((c2.lng - c1.lng) * Math.PI) / 180;
+  const lat1 = (c1.lat * Math.PI) / 180;
+  const lat2 = (c2.lat * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
+export type TravelTimeEstimate = {
+  walkingMins: number;
+  bikeMins: number;
+  carMins: number;
+};
+
+export function estimateTravelTimes(distanceMeters: number): TravelTimeEstimate {
+  const km = distanceMeters / 1000;
+  const walkingMins = Math.max(1, Math.round((km / 4.5) * 60));
+  const bikeMins = Math.max(1, Math.round((km / 25) * 60));
+  const carMins = Math.max(2, Math.round((km / 18) * 60));
+  return { walkingMins, bikeMins, carMins };
+}
+
+export function formatTravelBadge(distanceMeters: number): string {
+  const dist = formatDistance(distanceMeters);
+  const { walkingMins, bikeMins } = estimateTravelTimes(distanceMeters);
+  if (distanceMeters <= 1200) {
+    return `${dist} · 🚶 ${walkingMins}m · 🛵 ${bikeMins}m`;
+  }
+  return `${dist} · 🛵 ~${bikeMins}m away`;
 }

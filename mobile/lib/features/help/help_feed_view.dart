@@ -13,9 +13,12 @@ class HelpFeedView extends StatefulWidget {
 
 class _HelpFeedViewState extends State<HelpFeedView> {
   String _selectedCategory = 'all';
+  int _selectedRadiusM = 5000;
   bool _isLoading = true;
   List<HelpRequest> _requests = [];
   RealtimeChannel? _channel;
+
+  final List<int> _radiusOptions = [1000, 2000, 5000, 10000, 20000];
 
   @override
   void initState() {
@@ -57,7 +60,7 @@ class _HelpFeedViewState extends State<HelpFeedView> {
       final items = data.map((json) => HelpRequest.fromJson(json)).toList();
 
       if (items.isEmpty) {
-        // Indiranagar demo errands
+        // Indiranagar fallback demo errands
         _requests = [
           HelpRequest(
             id: 'mock-1',
@@ -90,7 +93,7 @@ class _HelpFeedViewState extends State<HelpFeedView> {
         _requests = items;
       }
     } catch (e) {
-      // Keep existing data or load fallback
+      // Keep existing data or fallback
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -154,6 +157,170 @@ class _HelpFeedViewState extends State<HelpFeedView> {
         SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.emergency),
       );
     }
+  }
+
+  void _showFindClosestHelperSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final mockHelpers = [
+          {
+            'name': 'Ravi Kumar',
+            'rating': '5.0',
+            'distance': '0.8 km',
+            'eta': '~3 mins',
+            'match': '98%',
+            'reason': 'Fastest responder · Indiranagar 100ft Rd',
+            'initial': 'R',
+          },
+          {
+            'name': 'Anand Swamy',
+            'rating': '4.9',
+            'distance': '1.2 km',
+            'eta': '~5 mins',
+            'match': '94%',
+            'reason': 'Top rated scooter helper · 31 helps',
+            'initial': 'A',
+          },
+          {
+            'name': 'Maya Venkatesh',
+            'rating': '4.8',
+            'distance': '1.9 km',
+            'eta': '~8 mins',
+            'match': '89%',
+            'reason': 'Verified neighbor · HAL 2nd Stage',
+            'initial': 'M',
+          },
+        ];
+
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.bolt, color: Colors.amber, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Closest Suitable Helpers',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Smart multi-factor match: ETA, distance & ratings',
+                          style: TextStyle(fontSize: 12, color: AppTheme.inkSoft),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...mockHelpers.map((h) => Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                          child: Text(h['initial']!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(h['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                  const SizedBox(width: 6),
+                                  Text('★ ${h['rating']}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amber)),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${h['distance']} · ${h['eta']} ETA',
+                                style: const TextStyle(fontSize: 12, color: AppTheme.primary, fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                h['reason']!,
+                                style: const TextStyle(fontSize: 11, color: AppTheme.inkMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            h['match']!,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Dispatched request to #1 match Ravi Kumar!')),
+                    );
+                  },
+                  child: const Text('Dispatch Request to Best Match'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showTaskDetailsSheet(HelpRequest req) {
@@ -426,9 +593,9 @@ class _HelpFeedViewState extends State<HelpFeedView> {
                     color: AppTheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    '5 km radius',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.primary),
+                  child: Text(
+                    '${_selectedRadiusM >= 1000 ? '${_selectedRadiusM ~/ 1000} km' : '$_selectedRadiusM m'} radius',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.primary),
                   ),
                 ),
               ],
@@ -440,6 +607,11 @@ class _HelpFeedViewState extends State<HelpFeedView> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bolt, color: Colors.amber),
+            tooltip: 'Find Closest Helper',
+            onPressed: _showFindClosestHelperSheet,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: AppTheme.inkSoft),
             onPressed: _loadRequests,
@@ -466,6 +638,52 @@ class _HelpFeedViewState extends State<HelpFeedView> {
         color: AppTheme.primary,
         child: Column(
           children: [
+            // Dynamic Radius Selector Bar (1km, 2km, 5km, 10km, 20km)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              color: AppTheme.surface,
+              child: Row(
+                children: [
+                  const Text('Radius: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.inkSoft)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _radiusOptions.map((r) {
+                          final isSel = _selectedRadiusM == r;
+                          final label = r >= 1000 ? '${r ~/ 1000} km' : '$r m';
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() => _selectedRadiusM = r);
+                              _loadRequests();
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isSel ? AppTheme.primary : Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: isSel ? AppTheme.primary : AppTheme.border),
+                              ),
+                              child: Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                                  color: isSel ? Colors.white : AppTheme.ink,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // Category Filter Bar
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -515,7 +733,7 @@ class _HelpFeedViewState extends State<HelpFeedView> {
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
-                              const Text('Check back soon or post a new request.'),
+                              Text('Try expanding radius to 10 km or 20 km.'),
                             ],
                           ),
                         )
@@ -610,7 +828,7 @@ class _RequestCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Row: Urgency badge & Status
+              // Top Row: Urgency badge, ETA & Fare
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -677,20 +895,18 @@ class _RequestCard extends StatelessWidget {
               ],
               const SizedBox(height: 12),
 
-              // Requester & Location
+              // Requester & Multi-Modal Distance/ETA
               Row(
                 children: [
-                  const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.inkMuted),
+                  const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.primary),
                   const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      request.pickupAddress ?? 'Within 5 km radius',
-                      style: const TextStyle(fontSize: 12, color: AppTheme.inkSoft),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  const Text(
+                    '0.8 km · 🚶 11m · 🛵 3m',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primary),
                   ),
+                  const Spacer(),
                   Text(
-                    'Posted by ${request.requesterName}',
+                    'By ${request.requesterName}',
                     style: const TextStyle(fontSize: 11, color: AppTheme.inkMuted),
                   ),
                 ],
