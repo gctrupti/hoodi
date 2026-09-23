@@ -10,6 +10,7 @@ import {
   ShieldAlert,
   Users,
   Wallet,
+  Wrench,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { HoodiMark } from "@/components/hoodi/HoodiLogo";
@@ -20,6 +21,7 @@ const NAV = [
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/teachers", label: "Teachers", icon: GraduationCap },
   { to: "/admin/helpers", label: "Helpers", icon: HandHeart },
+  { to: "/admin/services", label: "Services", icon: Wrench },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/reports", label: "Trust & reports", icon: ShieldAlert },
   { to: "/admin/finance", label: "Finance", icon: Wallet },

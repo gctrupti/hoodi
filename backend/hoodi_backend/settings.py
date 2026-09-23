@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "skills",
     "payments",
     "ai_services",
+    "services",
 ]
 
 AUTH_USER_MODEL = "accounts.User"

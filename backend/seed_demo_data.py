@@ -1,4 +1,4 @@
-﻿import os
+import os
 import django
 from decimal import Decimal
 
@@ -117,4 +117,129 @@ SkillOffering.objects.get_or_create(
     }
 )
 
-print("Demo data seeded successfully!")
+# 5. Hoodi Services (Categories, Subcategories, Providers, Listings)
+from services.models import (
+    ServiceCategory,
+    ServiceSubcategory,
+    ServiceProviderProfile,
+    ServiceListing,
+    ServiceRequestBooking,
+)
+
+home_cat, _ = ServiceCategory.objects.get_or_create(
+    slug="home-services",
+    defaults={
+        "name": "Home Services",
+        "icon": "Wrench",
+        "description": "Plumbing, electrical, AC repair, cleaning, carpentry",
+        "sort_order": 1,
+    }
+)
+personal_cat, _ = ServiceCategory.objects.get_or_create(
+    slug="personal-services",
+    defaults={
+        "name": "Personal Services",
+        "icon": "Sparkles",
+        "description": "Barbers, makeup artists, yoga instructors, fitness trainers",
+        "sort_order": 2,
+    }
+)
+prof_cat, _ = ServiceCategory.objects.get_or_create(
+    slug="professional-services",
+    defaults={
+        "name": "Professional Services",
+        "icon": "Briefcase",
+        "description": "Web dev, graphic design, content writing, tutoring",
+        "sort_order": 3,
+    }
+)
+event_cat, _ = ServiceCategory.objects.get_or_create(
+    slug="event-services",
+    defaults={
+        "name": "Event Services",
+        "icon": "Camera",
+        "description": "Event photography, videography, decoration, catering",
+        "sort_order": 4,
+    }
+)
+
+elec_subcat, _ = ServiceSubcategory.objects.get_or_create(
+    category=home_cat,
+    slug="electrical",
+    defaults={"name": "Electrical & Wiring"}
+)
+plumb_subcat, _ = ServiceSubcategory.objects.get_or_create(
+    category=home_cat,
+    slug="plumbing",
+    defaults={"name": "Plumbing & Leakages"}
+)
+
+provider_user, _ = User.objects.get_or_create(
+    email="pro.suresh@hoodi.com",
+    defaults={
+        "full_name": "Suresh Electricals & AC",
+        "phone": "+91 99887 76655",
+        "is_verified": True,
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "address": "MG Road, Bengaluru",
+    }
+)
+provider_user.set_password("pro123")
+provider_user.save()
+
+provider_profile, _ = ServiceProviderProfile.objects.get_or_create(
+    user=provider_user,
+    defaults={
+        "business_name": "Suresh Electricals & Home Services",
+        "bio": "Certified electrical engineer & AC specialist with 9 years of field experience in Bengaluru.",
+        "experience_years": 9,
+        "is_verified_provider": True,
+        "is_available": True,
+        "rating": Decimal("4.95"),
+        "completed_jobs_count": 48,
+        "service_radius_km": Decimal("15.00"),
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "address": "MG Road, Bengaluru",
+        "skills": ["Electrical wiring", "Switchboard repair", "AC service", "Inverter setup"],
+        "languages": ["English", "Kannada", "Hindi"],
+    }
+)
+
+ServiceListing.objects.get_or_create(
+    provider=provider_profile,
+    title="Comprehensive AC Deep Clean & Gas Check",
+    defaults={
+        "category": home_cat,
+        "subcategory": elec_subcat,
+        "description": "Thorough high-pressure foam wash, filter cleaning, cooling coil scrub and refrigerant leak test.",
+        "pricing_type": "fixed",
+        "base_price": Decimal("699.00"),
+        "estimated_duration_mins": 60,
+        "service_area_radius_km": Decimal("12.00"),
+        "rating": Decimal("4.95"),
+        "completed_jobs": 32,
+        "is_active": True,
+    }
+)
+
+ServiceListing.objects.get_or_create(
+    provider=provider_profile,
+    title="Emergency Switchboard & MCB Tripping Fix",
+    defaults={
+        "category": home_cat,
+        "subcategory": elec_subcat,
+        "description": "Urgent diagnostic and repair for short circuits, sparking switchboards, and tripping MCBs.",
+        "pricing_type": "starting_from",
+        "base_price": Decimal("349.00"),
+        "estimated_duration_mins": 45,
+        "service_area_radius_km": Decimal("15.00"),
+        "rating": Decimal("4.90"),
+        "completed_jobs": 28,
+        "is_active": True,
+    }
+)
+
+print("Demo data seeded successfully with Hoodi Services!")
+

@@ -1,4 +1,4 @@
-﻿from django.contrib import admin
+from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path("api/skills/", include("skills.urls")),
     path("api/payments/", include("payments.urls")),
     path("api/ai/", include("ai_services.urls")),
+    path("api/services/", include("services.urls")),
 ]

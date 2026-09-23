@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Home as HomeIcon, GraduationCap, ArrowRight, Sparkles, LogOut } from "lucide-react";
+import { Home as HomeIcon, GraduationCap, Wrench, ArrowRight, Sparkles, LogOut } from "lucide-react";
 import { getMyProfile } from "@/lib/hoodi/profiles.functions";
 import { HoodiMark } from "@/components/hoodi/HoodiLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,7 @@ type ServiceCard = {
   title: string;
   tagline: string;
   description: string;
-  to: "/help" | "/skills";
+  to: string;
   cta: string;
   Icon: typeof HomeIcon;
   accent: string;
@@ -51,6 +51,18 @@ const SERVICES: ServiceCard[] = [
     cta: "Open Hoodi Skills",
     Icon: GraduationCap,
     accent: "from-primary/15 via-sand to-background",
+    available: true,
+  },
+  {
+    key: "services",
+    title: "Hoodi Services",
+    tagline: "Professional & local experts",
+    description:
+      "Hire trusted electricians, plumbers, tutors, beauty experts, and freelance professionals in your neighborhood.",
+    to: "/services",
+    cta: "Explore Services",
+    Icon: Wrench,
+    accent: "from-amber-500/15 via-sand to-background",
     available: true,
   },
 ];

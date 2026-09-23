@@ -116,8 +116,8 @@ export const upsertMyTeacherProfile = createServerFn({ method: "POST" })
 export const getMyLearnerProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<LearnerProfile | null> => {
-    const { data, error } = await context.supabase
-      .from("learner_profiles")
+    const { data, error } = await (context.supabase
+      .from("learner_profiles" as any) as any)
       .select("*")
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -151,7 +151,7 @@ export const upsertMyLearnerProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => LearnerProfileInput.parse(input))
   .handler(async ({ data, context }): Promise<LearnerProfile> => {
-    const { data: row, error } = await context.supabase
+    const { data: row, error } = await (context.supabase as any)
       .from("learner_profiles")
       .upsert(
         {
@@ -168,16 +168,17 @@ export const upsertMyLearnerProfile = createServerFn({ method: "POST" })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
+    const r = row as any;
     return {
-      user_id: row.user_id,
-      learning_goals: row.learning_goals ?? [],
-      target_skills: row.target_skills ?? [],
-      skill_level: row.skill_level,
-      preferred_schedule: row.preferred_schedule,
-      budget_max: Number(row.budget_max),
-      mode_preference: row.mode_preference,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
+      user_id: r.user_id,
+      learning_goals: r.learning_goals ?? [],
+      target_skills: r.target_skills ?? [],
+      skill_level: r.skill_level,
+      preferred_schedule: r.preferred_schedule,
+      budget_max: Number(r.budget_max),
+      mode_preference: r.mode_preference,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
     };
   });
 
@@ -342,10 +343,10 @@ export const browseTeachers = createServerFn({ method: "POST" })
           longitude: (r as { longitude: number | null }).longitude ?? p?.longitude ?? null,
           is_verified_teacher: Boolean((r as { is_verified_teacher?: boolean }).is_verified_teacher),
           portfolio_items: (Array.isArray((r as { portfolio_items?: unknown }).portfolio_items)
-            ? (r as { portfolio_items: PortfolioItem[] }).portfolio_items
+            ? (r as unknown as { portfolio_items: PortfolioItem[] }).portfolio_items
             : []) as PortfolioItem[],
           certifications: (Array.isArray((r as { certifications?: unknown }).certifications)
-            ? (r as { certifications: Certification[] }).certifications
+            ? (r as unknown as { certifications: Certification[] }).certifications
             : []) as Certification[],
           languages: (Array.isArray((r as { languages?: unknown }).languages)
             ? (r as { languages: string[] }).languages

@@ -17,6 +17,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminTeachersRouteImport } from './routes/admin/teachers'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminServicesRouteImport } from './routes/admin/services'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminHelpersRouteImport } from './routes/admin/helpers'
@@ -25,20 +26,28 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedDevRouteImport } from './routes/_authenticated/dev'
 import { Route as AuthenticatedSkillsRouteRouteImport } from './routes/_authenticated/skills/route'
+import { Route as AuthenticatedServicesRouteRouteImport } from './routes/_authenticated/services/route'
 import { Route as AuthenticatedHelpRouteRouteImport } from './routes/_authenticated/help/route'
 import { Route as AuthenticatedSkillsIndexRouteImport } from './routes/_authenticated/skills/index'
+import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services/index'
 import { Route as AuthenticatedHelpIndexRouteImport } from './routes/_authenticated/help/index'
 import { Route as ApiPublicRazorpayWebhookRouteImport } from './routes/api/public/razorpay-webhook'
 import { Route as AuthenticatedSkillsTeachRouteImport } from './routes/_authenticated/skills/teach'
 import { Route as AuthenticatedSkillsProfileRouteImport } from './routes/_authenticated/skills/profile'
 import { Route as AuthenticatedSkillsLearnRouteImport } from './routes/_authenticated/skills/learn'
 import { Route as AuthenticatedSkillsBookingsRouteImport } from './routes/_authenticated/skills/bookings'
+import { Route as AuthenticatedServicesSearchRouteImport } from './routes/_authenticated/services/search'
+import { Route as AuthenticatedServicesBookingsRouteImport } from './routes/_authenticated/services/bookings'
+import { Route as AuthenticatedServicesServiceIdRouteImport } from './routes/_authenticated/services/$serviceId'
 import { Route as AuthenticatedHelpProfileRouteImport } from './routes/_authenticated/help/profile'
 import { Route as AuthenticatedHelpNearbyRouteImport } from './routes/_authenticated/help/nearby'
 import { Route as AuthenticatedHelpDashboardRouteImport } from './routes/_authenticated/help/dashboard'
 import { Route as AuthenticatedHelpAskRouteImport } from './routes/_authenticated/help/ask'
 import { Route as AuthenticatedAdminTrustRouteImport } from './routes/_authenticated/admin/trust'
 import { Route as AuthenticatedSkillsTeacherTeacherIdRouteImport } from './routes/_authenticated/skills/teacher.$teacherId'
+import { Route as AuthenticatedServicesProviderServicesRouteImport } from './routes/_authenticated/services/provider/services'
+import { Route as AuthenticatedServicesProviderDashboardRouteImport } from './routes/_authenticated/services/provider/dashboard'
+import { Route as AuthenticatedServicesProviderProviderIdRouteImport } from './routes/_authenticated/services/provider.$providerId'
 import { Route as AuthenticatedHelpRequestsIdRouteImport } from './routes/_authenticated/help/requests.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -78,6 +87,11 @@ const AdminTeachersRoute = AdminTeachersRouteImport.update({
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminServicesRoute = AdminServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
@@ -121,6 +135,12 @@ const AuthenticatedSkillsRouteRoute =
     path: '/skills',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedServicesRouteRoute =
+  AuthenticatedServicesRouteRouteImport.update({
+    id: '/services',
+    path: '/services',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHelpRouteRoute = AuthenticatedHelpRouteRouteImport.update({
   id: '/help',
   path: '/help',
@@ -131,6 +151,12 @@ const AuthenticatedSkillsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSkillsRouteRoute,
+  } as any)
+const AuthenticatedServicesIndexRoute =
+  AuthenticatedServicesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
   } as any)
 const AuthenticatedHelpIndexRoute = AuthenticatedHelpIndexRouteImport.update({
   id: '/',
@@ -167,6 +193,24 @@ const AuthenticatedSkillsBookingsRoute =
     path: '/bookings',
     getParentRoute: () => AuthenticatedSkillsRouteRoute,
   } as any)
+const AuthenticatedServicesSearchRoute =
+  AuthenticatedServicesSearchRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
+const AuthenticatedServicesBookingsRoute =
+  AuthenticatedServicesBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
+const AuthenticatedServicesServiceIdRoute =
+  AuthenticatedServicesServiceIdRouteImport.update({
+    id: '/$serviceId',
+    path: '/$serviceId',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
 const AuthenticatedHelpProfileRoute =
   AuthenticatedHelpProfileRouteImport.update({
     id: '/profile',
@@ -200,6 +244,24 @@ const AuthenticatedSkillsTeacherTeacherIdRoute =
     path: '/teacher/$teacherId',
     getParentRoute: () => AuthenticatedSkillsRouteRoute,
   } as any)
+const AuthenticatedServicesProviderServicesRoute =
+  AuthenticatedServicesProviderServicesRouteImport.update({
+    id: '/provider/services',
+    path: '/provider/services',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
+const AuthenticatedServicesProviderDashboardRoute =
+  AuthenticatedServicesProviderDashboardRouteImport.update({
+    id: '/provider/dashboard',
+    path: '/provider/dashboard',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
+const AuthenticatedServicesProviderProviderIdRoute =
+  AuthenticatedServicesProviderProviderIdRouteImport.update({
+    id: '/provider/$providerId',
+    path: '/provider/$providerId',
+    getParentRoute: () => AuthenticatedServicesRouteRoute,
+  } as any)
 const AuthenticatedHelpRequestsIdRoute =
   AuthenticatedHelpRequestsIdRouteImport.update({
     id: '/requests/$id',
@@ -212,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/help': typeof AuthenticatedHelpRouteRouteWithChildren
+  '/services': typeof AuthenticatedServicesRouteRouteWithChildren
   '/skills': typeof AuthenticatedSkillsRouteRouteWithChildren
   '/dev': typeof AuthenticatedDevRoute
   '/home': typeof AuthenticatedHomeRoute
@@ -220,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/admin/helpers': typeof AdminHelpersRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/users': typeof AdminUsersRoute
@@ -229,14 +293,21 @@ export interface FileRoutesByFullPath {
   '/help/dashboard': typeof AuthenticatedHelpDashboardRoute
   '/help/nearby': typeof AuthenticatedHelpNearbyRoute
   '/help/profile': typeof AuthenticatedHelpProfileRoute
+  '/services/$serviceId': typeof AuthenticatedServicesServiceIdRoute
+  '/services/bookings': typeof AuthenticatedServicesBookingsRoute
+  '/services/search': typeof AuthenticatedServicesSearchRoute
   '/skills/bookings': typeof AuthenticatedSkillsBookingsRoute
   '/skills/learn': typeof AuthenticatedSkillsLearnRoute
   '/skills/profile': typeof AuthenticatedSkillsProfileRoute
   '/skills/teach': typeof AuthenticatedSkillsTeachRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/help/': typeof AuthenticatedHelpIndexRoute
+  '/services/': typeof AuthenticatedServicesIndexRoute
   '/skills/': typeof AuthenticatedSkillsIndexRoute
   '/help/requests/$id': typeof AuthenticatedHelpRequestsIdRoute
+  '/services/provider/$providerId': typeof AuthenticatedServicesProviderProviderIdRoute
+  '/services/provider/dashboard': typeof AuthenticatedServicesProviderDashboardRoute
+  '/services/provider/services': typeof AuthenticatedServicesProviderServicesRoute
   '/skills/teacher/$teacherId': typeof AuthenticatedSkillsTeacherTeacherIdRoute
 }
 export interface FileRoutesByTo {
@@ -249,6 +320,7 @@ export interface FileRoutesByTo {
   '/admin/helpers': typeof AdminHelpersRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/users': typeof AdminUsersRoute
@@ -258,14 +330,21 @@ export interface FileRoutesByTo {
   '/help/dashboard': typeof AuthenticatedHelpDashboardRoute
   '/help/nearby': typeof AuthenticatedHelpNearbyRoute
   '/help/profile': typeof AuthenticatedHelpProfileRoute
+  '/services/$serviceId': typeof AuthenticatedServicesServiceIdRoute
+  '/services/bookings': typeof AuthenticatedServicesBookingsRoute
+  '/services/search': typeof AuthenticatedServicesSearchRoute
   '/skills/bookings': typeof AuthenticatedSkillsBookingsRoute
   '/skills/learn': typeof AuthenticatedSkillsLearnRoute
   '/skills/profile': typeof AuthenticatedSkillsProfileRoute
   '/skills/teach': typeof AuthenticatedSkillsTeachRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/help': typeof AuthenticatedHelpIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
   '/skills': typeof AuthenticatedSkillsIndexRoute
   '/help/requests/$id': typeof AuthenticatedHelpRequestsIdRoute
+  '/services/provider/$providerId': typeof AuthenticatedServicesProviderProviderIdRoute
+  '/services/provider/dashboard': typeof AuthenticatedServicesProviderDashboardRoute
+  '/services/provider/services': typeof AuthenticatedServicesProviderServicesRoute
   '/skills/teacher/$teacherId': typeof AuthenticatedSkillsTeacherTeacherIdRoute
 }
 export interface FileRoutesById {
@@ -275,6 +354,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/help': typeof AuthenticatedHelpRouteRouteWithChildren
+  '/_authenticated/services': typeof AuthenticatedServicesRouteRouteWithChildren
   '/_authenticated/skills': typeof AuthenticatedSkillsRouteRouteWithChildren
   '/_authenticated/dev': typeof AuthenticatedDevRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
@@ -283,6 +363,7 @@ export interface FileRoutesById {
   '/admin/helpers': typeof AdminHelpersRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/services': typeof AdminServicesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/teachers': typeof AdminTeachersRoute
   '/admin/users': typeof AdminUsersRoute
@@ -292,14 +373,21 @@ export interface FileRoutesById {
   '/_authenticated/help/dashboard': typeof AuthenticatedHelpDashboardRoute
   '/_authenticated/help/nearby': typeof AuthenticatedHelpNearbyRoute
   '/_authenticated/help/profile': typeof AuthenticatedHelpProfileRoute
+  '/_authenticated/services/$serviceId': typeof AuthenticatedServicesServiceIdRoute
+  '/_authenticated/services/bookings': typeof AuthenticatedServicesBookingsRoute
+  '/_authenticated/services/search': typeof AuthenticatedServicesSearchRoute
   '/_authenticated/skills/bookings': typeof AuthenticatedSkillsBookingsRoute
   '/_authenticated/skills/learn': typeof AuthenticatedSkillsLearnRoute
   '/_authenticated/skills/profile': typeof AuthenticatedSkillsProfileRoute
   '/_authenticated/skills/teach': typeof AuthenticatedSkillsTeachRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/_authenticated/help/': typeof AuthenticatedHelpIndexRoute
+  '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/_authenticated/skills/': typeof AuthenticatedSkillsIndexRoute
   '/_authenticated/help/requests/$id': typeof AuthenticatedHelpRequestsIdRoute
+  '/_authenticated/services/provider/$providerId': typeof AuthenticatedServicesProviderProviderIdRoute
+  '/_authenticated/services/provider/dashboard': typeof AuthenticatedServicesProviderDashboardRoute
+  '/_authenticated/services/provider/services': typeof AuthenticatedServicesProviderServicesRoute
   '/_authenticated/skills/teacher/$teacherId': typeof AuthenticatedSkillsTeacherTeacherIdRoute
 }
 export interface FileRouteTypes {
@@ -309,6 +397,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/help'
+    | '/services'
     | '/skills'
     | '/dev'
     | '/home'
@@ -317,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin/helpers'
     | '/admin/login'
     | '/admin/reports'
+    | '/admin/services'
     | '/admin/settings'
     | '/admin/teachers'
     | '/admin/users'
@@ -326,14 +416,21 @@ export interface FileRouteTypes {
     | '/help/dashboard'
     | '/help/nearby'
     | '/help/profile'
+    | '/services/$serviceId'
+    | '/services/bookings'
+    | '/services/search'
     | '/skills/bookings'
     | '/skills/learn'
     | '/skills/profile'
     | '/skills/teach'
     | '/api/public/razorpay-webhook'
     | '/help/'
+    | '/services/'
     | '/skills/'
     | '/help/requests/$id'
+    | '/services/provider/$providerId'
+    | '/services/provider/dashboard'
+    | '/services/provider/services'
     | '/skills/teacher/$teacherId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -346,6 +443,7 @@ export interface FileRouteTypes {
     | '/admin/helpers'
     | '/admin/login'
     | '/admin/reports'
+    | '/admin/services'
     | '/admin/settings'
     | '/admin/teachers'
     | '/admin/users'
@@ -355,14 +453,21 @@ export interface FileRouteTypes {
     | '/help/dashboard'
     | '/help/nearby'
     | '/help/profile'
+    | '/services/$serviceId'
+    | '/services/bookings'
+    | '/services/search'
     | '/skills/bookings'
     | '/skills/learn'
     | '/skills/profile'
     | '/skills/teach'
     | '/api/public/razorpay-webhook'
     | '/help'
+    | '/services'
     | '/skills'
     | '/help/requests/$id'
+    | '/services/provider/$providerId'
+    | '/services/provider/dashboard'
+    | '/services/provider/services'
     | '/skills/teacher/$teacherId'
   id:
     | '__root__'
@@ -371,6 +476,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/_authenticated/help'
+    | '/_authenticated/services'
     | '/_authenticated/skills'
     | '/_authenticated/dev'
     | '/_authenticated/home'
@@ -379,6 +485,7 @@ export interface FileRouteTypes {
     | '/admin/helpers'
     | '/admin/login'
     | '/admin/reports'
+    | '/admin/services'
     | '/admin/settings'
     | '/admin/teachers'
     | '/admin/users'
@@ -388,14 +495,21 @@ export interface FileRouteTypes {
     | '/_authenticated/help/dashboard'
     | '/_authenticated/help/nearby'
     | '/_authenticated/help/profile'
+    | '/_authenticated/services/$serviceId'
+    | '/_authenticated/services/bookings'
+    | '/_authenticated/services/search'
     | '/_authenticated/skills/bookings'
     | '/_authenticated/skills/learn'
     | '/_authenticated/skills/profile'
     | '/_authenticated/skills/teach'
     | '/api/public/razorpay-webhook'
     | '/_authenticated/help/'
+    | '/_authenticated/services/'
     | '/_authenticated/skills/'
     | '/_authenticated/help/requests/$id'
+    | '/_authenticated/services/provider/$providerId'
+    | '/_authenticated/services/provider/dashboard'
+    | '/_authenticated/services/provider/services'
     | '/_authenticated/skills/teacher/$teacherId'
   fileRoutesById: FileRoutesById
 }
@@ -465,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSettingsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/services': {
+      id: '/admin/services'
+      path: '/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AdminServicesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/reports'
@@ -521,6 +642,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/services': {
+      id: '/_authenticated/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof AuthenticatedServicesRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/help': {
       id: '/_authenticated/help'
       path: '/help'
@@ -534,6 +662,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/skills/'
       preLoaderRoute: typeof AuthenticatedSkillsIndexRouteImport
       parentRoute: typeof AuthenticatedSkillsRouteRoute
+    }
+    '/_authenticated/services/': {
+      id: '/_authenticated/services/'
+      path: '/'
+      fullPath: '/services/'
+      preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
     }
     '/_authenticated/help/': {
       id: '/_authenticated/help/'
@@ -577,6 +712,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsBookingsRouteImport
       parentRoute: typeof AuthenticatedSkillsRouteRoute
     }
+    '/_authenticated/services/search': {
+      id: '/_authenticated/services/search'
+      path: '/search'
+      fullPath: '/services/search'
+      preLoaderRoute: typeof AuthenticatedServicesSearchRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
+    '/_authenticated/services/bookings': {
+      id: '/_authenticated/services/bookings'
+      path: '/bookings'
+      fullPath: '/services/bookings'
+      preLoaderRoute: typeof AuthenticatedServicesBookingsRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
+    '/_authenticated/services/$serviceId': {
+      id: '/_authenticated/services/$serviceId'
+      path: '/$serviceId'
+      fullPath: '/services/$serviceId'
+      preLoaderRoute: typeof AuthenticatedServicesServiceIdRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
     '/_authenticated/help/profile': {
       id: '/_authenticated/help/profile'
       path: '/profile'
@@ -619,6 +775,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsTeacherTeacherIdRouteImport
       parentRoute: typeof AuthenticatedSkillsRouteRoute
     }
+    '/_authenticated/services/provider/services': {
+      id: '/_authenticated/services/provider/services'
+      path: '/provider/services'
+      fullPath: '/services/provider/services'
+      preLoaderRoute: typeof AuthenticatedServicesProviderServicesRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
+    '/_authenticated/services/provider/dashboard': {
+      id: '/_authenticated/services/provider/dashboard'
+      path: '/provider/dashboard'
+      fullPath: '/services/provider/dashboard'
+      preLoaderRoute: typeof AuthenticatedServicesProviderDashboardRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
+    '/_authenticated/services/provider/$providerId': {
+      id: '/_authenticated/services/provider/$providerId'
+      path: '/provider/$providerId'
+      fullPath: '/services/provider/$providerId'
+      preLoaderRoute: typeof AuthenticatedServicesProviderProviderIdRouteImport
+      parentRoute: typeof AuthenticatedServicesRouteRoute
+    }
     '/_authenticated/help/requests/$id': {
       id: '/_authenticated/help/requests/$id'
       path: '/requests/$id'
@@ -653,6 +830,35 @@ const AuthenticatedHelpRouteRouteWithChildren =
     AuthenticatedHelpRouteRouteChildren,
   )
 
+interface AuthenticatedServicesRouteRouteChildren {
+  AuthenticatedServicesServiceIdRoute: typeof AuthenticatedServicesServiceIdRoute
+  AuthenticatedServicesBookingsRoute: typeof AuthenticatedServicesBookingsRoute
+  AuthenticatedServicesSearchRoute: typeof AuthenticatedServicesSearchRoute
+  AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedServicesProviderProviderIdRoute: typeof AuthenticatedServicesProviderProviderIdRoute
+  AuthenticatedServicesProviderDashboardRoute: typeof AuthenticatedServicesProviderDashboardRoute
+  AuthenticatedServicesProviderServicesRoute: typeof AuthenticatedServicesProviderServicesRoute
+}
+
+const AuthenticatedServicesRouteRouteChildren: AuthenticatedServicesRouteRouteChildren =
+  {
+    AuthenticatedServicesServiceIdRoute: AuthenticatedServicesServiceIdRoute,
+    AuthenticatedServicesBookingsRoute: AuthenticatedServicesBookingsRoute,
+    AuthenticatedServicesSearchRoute: AuthenticatedServicesSearchRoute,
+    AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+    AuthenticatedServicesProviderProviderIdRoute:
+      AuthenticatedServicesProviderProviderIdRoute,
+    AuthenticatedServicesProviderDashboardRoute:
+      AuthenticatedServicesProviderDashboardRoute,
+    AuthenticatedServicesProviderServicesRoute:
+      AuthenticatedServicesProviderServicesRoute,
+  }
+
+const AuthenticatedServicesRouteRouteWithChildren =
+  AuthenticatedServicesRouteRoute._addFileChildren(
+    AuthenticatedServicesRouteRouteChildren,
+  )
+
 interface AuthenticatedSkillsRouteRouteChildren {
   AuthenticatedSkillsBookingsRoute: typeof AuthenticatedSkillsBookingsRoute
   AuthenticatedSkillsLearnRoute: typeof AuthenticatedSkillsLearnRoute
@@ -680,6 +886,7 @@ const AuthenticatedSkillsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHelpRouteRoute: typeof AuthenticatedHelpRouteRouteWithChildren
+  AuthenticatedServicesRouteRoute: typeof AuthenticatedServicesRouteRouteWithChildren
   AuthenticatedSkillsRouteRoute: typeof AuthenticatedSkillsRouteRouteWithChildren
   AuthenticatedDevRoute: typeof AuthenticatedDevRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
@@ -688,6 +895,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHelpRouteRoute: AuthenticatedHelpRouteRouteWithChildren,
+  AuthenticatedServicesRouteRoute: AuthenticatedServicesRouteRouteWithChildren,
   AuthenticatedSkillsRouteRoute: AuthenticatedSkillsRouteRouteWithChildren,
   AuthenticatedDevRoute: AuthenticatedDevRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
@@ -703,6 +911,7 @@ interface AdminRouteRouteChildren {
   AdminHelpersRoute: typeof AdminHelpersRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminServicesRoute: typeof AdminServicesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTeachersRoute: typeof AdminTeachersRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -715,6 +924,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminHelpersRoute: AdminHelpersRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminServicesRoute: AdminServicesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTeachersRoute: AdminTeachersRoute,
   AdminUsersRoute: AdminUsersRoute,

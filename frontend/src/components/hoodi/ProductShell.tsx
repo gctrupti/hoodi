@@ -16,7 +16,7 @@ export type ShellNavItem = {
 type Props = {
   brand: string;
   brandIcon: ComponentType<{ className?: string }>;
-  homeHref: "/help" | "/skills";
+  homeHref: "/help" | "/skills" | "/services" | string;
   nav: ShellNavItem[];
   mobileNav: ShellNavItem[];
   children: ReactNode;

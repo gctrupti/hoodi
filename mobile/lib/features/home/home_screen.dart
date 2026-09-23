@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../help/help_feed_view.dart';
 import '../skills/skills_marketplace_view.dart';
+import '../services/services_view.dart';
 import '../wallet/wallet_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _views = const [
     HelpFeedView(),
     SkillsMarketplaceView(),
+    ServicesMarketplaceView(),
     WalletView(),
   ];
 
@@ -34,17 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: AppTheme.primary,
+          unselectedItemColor: AppTheme.inkSoft,
           onTap: (idx) => setState(() => _currentIndex = idx),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.handshake_outlined),
               activeIcon: Icon(Icons.handshake),
-              label: 'Hoodi Help',
+              label: 'Help',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.school_outlined),
               activeIcon: Icon(Icons.school),
               label: 'Skills',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.build_outlined),
+              activeIcon: Icon(Icons.build),
+              label: 'Services',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.account_balance_wallet_outlined),

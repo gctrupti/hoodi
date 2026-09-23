@@ -62,8 +62,8 @@ export type SkillExchangeRow = {
 export const getMyExchangePreferences = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ExchangePreferences | null> => {
-    const { data, error } = await context.supabase
-      .from("skill_exchange_preferences")
+    const { data, error } = await (context.supabase
+      .from("skill_exchange_preferences" as any) as any)
       .select("*")
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -91,8 +91,8 @@ export const upsertExchangePreferences = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => PreferencesInput.parse(input))
   .handler(async ({ data, context }): Promise<ExchangePreferences> => {
-    const { data: row, error } = await context.supabase
-      .from("skill_exchange_preferences")
+    const { data: row, error } = await (context.supabase
+      .from("skill_exchange_preferences" as any) as any)
       .upsert(
         {
           user_id: context.userId,
@@ -140,26 +140,26 @@ export const discoverExchangeMatches = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SkillExchangeMatch[]> => {
     // 1. Get my exchange preferences
-    const { data: myPref } = await context.supabase
-      .from("skill_exchange_preferences")
+    const { data: myPref } = await (context.supabase
+      .from("skill_exchange_preferences" as any) as any)
       .select("*")
       .eq("user_id", context.userId)
       .maybeSingle();
 
-    if (!myPref || !myPref.is_active) {
+    if (!myPref || !(myPref as any).is_active) {
       return [];
     }
 
-    const myOffers: string[] = myPref.offers_skills ?? [];
-    const myWants: string[] = myPref.wants_skills ?? [];
+    const myOffers: string[] = (myPref as any).offers_skills ?? [];
+    const myWants: string[] = (myPref as any).wants_skills ?? [];
 
     if (myOffers.length === 0 && myWants.length === 0) {
       return [];
     }
 
     // 2. Fetch other active candidates
-    const { data: candidatePrefs, error } = await context.supabase
-      .from("skill_exchange_preferences")
+    const { data: candidatePrefs, error } = await (context.supabase
+      .from("skill_exchange_preferences" as any) as any)
       .select(`
         user_id,
         offers_skills,
@@ -191,7 +191,7 @@ export const discoverExchangeMatches = createServerFn({ method: "GET" })
 
     const matches: SkillExchangeMatch[] = [];
 
-    for (const row of candidatePrefs ?? []) {
+    for (const row of (candidatePrefs ?? []) as any[]) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const p = (row as any).profiles;
       if (!p || !p.is_active) continue;
@@ -301,8 +301,8 @@ export const proposeSkillExchange = createServerFn({ method: "POST" })
       throw new Error("You cannot propose a skill swap with yourself.");
     }
 
-    const { data: exchange, error } = await context.supabase
-      .from("skill_exchanges")
+    const { data: exchange, error } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .insert({
         proposer_id: context.userId,
         recipient_id: data.recipientId,
@@ -322,19 +322,19 @@ export const proposeSkillExchange = createServerFn({ method: "POST" })
     // Create an attached chat thread for the exchange
     const { data: thread } = await context.supabase
       .from("chat_threads")
-      .insert({ exchange_id: exchange.id })
+      .insert({ exchange_id: (exchange as any).id })
       .select("id")
       .maybeSingle();
 
     if (thread) {
-      await context.supabase
-        .from("skill_exchanges")
+      await (context.supabase
+        .from("skill_exchanges" as any) as any)
         .update({ chat_thread_id: thread.id })
-        .eq("id", exchange.id);
-      exchange.chat_thread_id = thread.id;
+        .eq("id", (exchange as any).id);
+      (exchange as any).chat_thread_id = thread.id;
     }
 
-    return exchange;
+    return exchange as any;
   });
 
 export const respondToExchange = createServerFn({ method: "POST" })
@@ -349,8 +349,8 @@ export const respondToExchange = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const newStatus = data.action === "accept" ? "accepted" : "declined";
 
-    const { data: row, error } = await context.supabase
-      .from("skill_exchanges")
+    const { data: row, error } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", data.exchangeId)
       .eq("recipient_id", context.userId)
@@ -359,7 +359,7 @@ export const respondToExchange = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
-    return row;
+    return row as any;
   });
 
 const ScheduleInput = z.object({
@@ -379,8 +379,8 @@ export const scheduleExchangeSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ScheduleInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
-      .from("skill_exchanges")
+    const { data: row, error } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .update({
         status: "scheduled",
         session_schedule: data.sessions,
@@ -394,15 +394,15 @@ export const scheduleExchangeSession = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
-    return row;
+    return row as any;
   });
 
 export const completeExchangeSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ exchangeId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { data: current, error: fetchErr } = await context.supabase
-      .from("skill_exchanges")
+    const { data: current, error: fetchErr } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .select("*")
       .eq("id", data.exchangeId)
       .maybeSingle();
@@ -410,8 +410,8 @@ export const completeExchangeSession = createServerFn({ method: "POST" })
     if (fetchErr) throw new Error(fetchErr.message);
     if (!current) throw new Error("Skill exchange not found.");
 
-    const isProposer = current.proposer_id === context.userId;
-    const isRecipient = current.recipient_id === context.userId;
+    const isProposer = (current as any).proposer_id === context.userId;
+    const isRecipient = (current as any).recipient_id === context.userId;
     if (!isProposer && !isRecipient) throw new Error("Unauthorized.");
 
     const updateFields: Record<string, unknown> = {
@@ -426,8 +426,8 @@ export const completeExchangeSession = createServerFn({ method: "POST" })
     }
 
     const bothWillBeDone =
-      (isProposer && current.recipient_completed) ||
-      (isRecipient && current.proposer_completed);
+      (isProposer && (current as any).recipient_completed) ||
+      (isRecipient && (current as any).proposer_completed);
 
     if (bothWillBeDone) {
       updateFields.status = "completed";
@@ -436,8 +436,8 @@ export const completeExchangeSession = createServerFn({ method: "POST" })
       updateFields.status = "in_progress";
     }
 
-    const { data: updated, error } = await context.supabase
-      .from("skill_exchanges")
+    const { data: updated, error } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .update(updateFields)
       .eq("id", data.exchangeId)
       .select("*")
@@ -450,8 +450,8 @@ export const completeExchangeSession = createServerFn({ method: "POST" })
 export const listMyExchanges = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SkillExchangeRow[]> => {
-    const { data, error } = await context.supabase
-      .from("skill_exchanges")
+    const { data, error } = await (context.supabase
+      .from("skill_exchanges" as any) as any)
       .select(`
         *,
         proposer:profiles!skill_exchanges_proposer_id_fkey(id, name, profile_photo_url),
@@ -462,7 +462,7 @@ export const listMyExchanges = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((row) => {
+    return (data ?? []).map((row: any) => {
       const isProposer = row.proposer_id === context.userId;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const other = isProposer ? (row as any).recipient : (row as any).proposer;

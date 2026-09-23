@@ -936,7 +936,9 @@ function TeacherCardView({ t, badges }: { t: TeacherCard; badges?: string[] }) {
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-display text-lg font-bold text-ink truncate">{t.name ?? "Neighbor"}</h3>
                   {t.is_verified_teacher && (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" title="Verified Instructor" />
+                    <span title="Verified Instructor">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    </span>
                   )}
                 </div>
                 <TrustBadges badges={badges} max={2} className="mt-1" />
