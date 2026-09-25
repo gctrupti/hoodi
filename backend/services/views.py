@@ -105,17 +105,14 @@ class ServiceListingViewSet(viewsets.ModelViewSet):
                 user_lat = float(lat)
                 user_lon = float(lon)
                 max_radius = float(radius)
-                valid_ids = []
-                for listing in qs:
-                    p_lat = listing.provider.latitude
-                    p_lon = listing.provider.longitude
-                    if p_lat is not None and p_lon is not None:
-                        dist = calculate_distance_km(user_lat, user_lon, p_lat, p_lon)
-                        if dist is not None and dist <= max_radius:
-                            valid_ids.append(listing.id)
-                    else:
-                        valid_ids.append(listing.id)
-                qs = qs.filter(id__in=valid_ids)
+                from services_domain.matching_service import MatchingService
+                bbox = MatchingService.get_bounding_box(user_lat, user_lon, max_radius)
+                qs = qs.filter(
+                    provider__latitude__gte=bbox["min_lat"],
+                    provider__latitude__lte=bbox["max_lat"],
+                    provider__longitude__gte=bbox["min_lon"],
+                    provider__longitude__lte=bbox["max_lon"],
+                )
             except ValueError:
                 pass
 
@@ -226,13 +223,10 @@ class ServiceBookingViewSet(viewsets.ModelViewSet):
         # Credit provider wallet (Total - Commission)
         if booking.final_price and booking.final_price > 0:
             net_earnings = booking.final_price - booking.commission_amount
-            wallet, _ = Wallet.objects.get_or_create(user=booking.provider.user)
-            wallet.balance += net_earnings
-            wallet.save()
-            WalletTransaction.objects.create(
-                wallet=wallet,
+            from services_domain.payment_service import PaymentLedgerService
+            PaymentLedgerService.credit_wallet(
+                user=booking.provider.user,
                 amount=net_earnings,
-                transaction_type="credit",
                 description=f"Earnings from Service Booking #{booking.id.hex[:8]} (less 10% fee)",
                 reference_id=f"SRV_{booking.id.hex[:8].upper()}"
             )

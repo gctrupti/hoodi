@@ -1,4 +1,4 @@
-﻿from rest_framework import serializers
+from rest_framework import serializers
 from accounts.serializers import UserSerializer
 from .models import TeacherProfile, SkillOffering, AvailabilitySlot, SkillBooking, ReviewRating
 
@@ -47,7 +47,7 @@ class SkillBookingSerializer(serializers.ModelSerializer):
             "booking_date", "start_time", "total_price", "status",
             "meeting_link", "created_at"
         ]
-        read_only_fields = ["id", "learner", "status", "created_at"]
+        read_only_fields = ["id", "learner", "total_price", "status", "created_at"]
 
 class ReviewRatingSerializer(serializers.ModelSerializer):
     author_name = serializers.ReadOnlyField(source="author.full_name")
