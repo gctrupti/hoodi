@@ -1,0 +1,442 @@
+{
+  "summary": {
+    "sqlite_domain_tables_count": 17,
+    "supabase_tables_discovered": 34
+  },
+  "mappings": {
+    "accounts_user": {
+      "mapped_to_pg_table": "profiles",
+      "django_row_count": 4,
+      "django_cols_count": 27,
+      "pg_cols_count": 11,
+      "common_columns": [
+        "bio",
+        "created_at",
+        "id",
+        "is_active",
+        "updated_at"
+      ],
+      "only_in_django": [
+        "address",
+        "avatar_url",
+        "completed_tasks_count",
+        "cover_url",
+        "date_joined",
+        "email",
+        "first_name",
+        "full_name",
+        "is_admin_user",
+        "is_helper",
+        "is_staff",
+        "is_superuser",
+        "is_teacher",
+        "is_verified",
+        "last_login",
+        "last_name",
+        "latitude",
+        "longitude",
+        "password",
+        "phone",
+        "rating",
+        "username"
+      ],
+      "only_in_postgres": [
+        "is_admin",
+        "location",
+        "name",
+        "phone_number",
+        "phone_verified",
+        "profile_photo_url"
+      ]
+    },
+    "help_requests_helprequest": {
+      "mapped_to_pg_table": "help_requests",
+      "django_row_count": 2,
+      "django_cols_count": 18,
+      "pg_cols_count": 24,
+      "common_columns": [
+        "category",
+        "completed_at",
+        "created_at",
+        "description",
+        "helper_id",
+        "id",
+        "requester_id",
+        "status",
+        "title",
+        "updated_at",
+        "urgency"
+      ],
+      "only_in_django": [
+        "dropoff_address",
+        "dropoff_latitude",
+        "dropoff_longitude",
+        "fare_amount",
+        "pickup_address",
+        "pickup_latitude",
+        "pickup_longitude"
+      ],
+      "only_in_postgres": [
+        "accepted_at",
+        "address_text",
+        "ai_confidence",
+        "ai_suggested_category",
+        "ai_suggested_urgency",
+        "cancelled_at",
+        "commission_amount",
+        "estimated_fare",
+        "final_fare",
+        "is_paid",
+        "location",
+        "payment_id",
+        "photo_url"
+      ]
+    },
+    "help_requests_chatmessage": {
+      "mapped_to_pg_table": "chat_messages",
+      "django_row_count": 0,
+      "django_cols_count": 5,
+      "pg_cols_count": 6,
+      "common_columns": [
+        "created_at",
+        "id",
+        "sender_id"
+      ],
+      "only_in_django": [
+        "message",
+        "request_id"
+      ],
+      "only_in_postgres": [
+        "content",
+        "read_at",
+        "thread_id"
+      ]
+    },
+    "payments_wallet": {
+      "mapped_to_pg_table": "wallets",
+      "django_row_count": 3,
+      "django_cols_count": 6,
+      "pg_cols_count": 4,
+      "common_columns": [
+        "balance",
+        "id",
+        "updated_at",
+        "user_id"
+      ],
+      "only_in_django": [
+        "created_at",
+        "currency"
+      ],
+      "only_in_postgres": []
+    },
+    "payments_wallettransaction": {
+      "mapped_to_pg_table": "wallet_transactions",
+      "django_row_count": 0,
+      "django_cols_count": 7,
+      "pg_cols_count": 0,
+      "common_columns": [],
+      "only_in_django": [
+        "amount",
+        "created_at",
+        "description",
+        "id",
+        "reference_id",
+        "transaction_type",
+        "wallet_id"
+      ],
+      "only_in_postgres": []
+    },
+    "skills_teacherprofile": {
+      "mapped_to_pg_table": "teacher_profiles",
+      "django_row_count": 1,
+      "django_cols_count": 8,
+      "pg_cols_count": 9,
+      "common_columns": [
+        "bio",
+        "created_at",
+        "experience_years",
+        "headline",
+        "hourly_rate",
+        "user_id"
+      ],
+      "only_in_django": [
+        "id",
+        "is_approved"
+      ],
+      "only_in_postgres": [
+        "availability",
+        "is_published",
+        "updated_at"
+      ]
+    },
+    "skills_skilloffering": {
+      "mapped_to_pg_table": "skill_offerings",
+      "django_row_count": 1,
+      "django_cols_count": 10,
+      "pg_cols_count": 10,
+      "common_columns": [
+        "category",
+        "created_at",
+        "description",
+        "duration_minutes",
+        "id",
+        "teacher_id",
+        "title"
+      ],
+      "only_in_django": [
+        "is_in_person",
+        "is_online",
+        "price"
+      ],
+      "only_in_postgres": [
+        "is_published",
+        "price_per_session",
+        "updated_at"
+      ]
+    },
+    "skills_skillbooking": {
+      "mapped_to_pg_table": "skill_bookings",
+      "django_row_count": 0,
+      "django_cols_count": 9,
+      "pg_cols_count": 16,
+      "common_columns": [
+        "created_at",
+        "id",
+        "learner_id",
+        "offering_id",
+        "status"
+      ],
+      "only_in_django": [
+        "booking_date",
+        "meeting_link",
+        "start_time",
+        "total_price"
+      ],
+      "only_in_postgres": [
+        "cancelled_at",
+        "cancelled_by",
+        "commission_amount",
+        "completed_at",
+        "duration_minutes",
+        "notes",
+        "payment_id",
+        "price",
+        "scheduled_at",
+        "teacher_id",
+        "updated_at"
+      ]
+    },
+    "skills_reviewrating": {
+      "mapped_to_pg_table": "review_ratings",
+      "django_row_count": 0,
+      "django_cols_count": 7,
+      "pg_cols_count": 0,
+      "common_columns": [],
+      "only_in_django": [
+        "author_id",
+        "booking_id",
+        "comment",
+        "created_at",
+        "id",
+        "rating",
+        "target_user_id"
+      ],
+      "only_in_postgres": []
+    },
+    "services_servicecategory": {
+      "mapped_to_pg_table": "service_categories",
+      "django_row_count": 4,
+      "django_cols_count": 9,
+      "pg_cols_count": 9,
+      "common_columns": [
+        "created_at",
+        "description",
+        "icon",
+        "id",
+        "is_active",
+        "name",
+        "slug",
+        "sort_order",
+        "updated_at"
+      ],
+      "only_in_django": [],
+      "only_in_postgres": []
+    },
+    "services_servicesubcategory": {
+      "mapped_to_pg_table": "service_subcategories",
+      "django_row_count": 2,
+      "django_cols_count": 8,
+      "pg_cols_count": 8,
+      "common_columns": [
+        "category_id",
+        "created_at",
+        "description",
+        "id",
+        "is_active",
+        "name",
+        "slug",
+        "updated_at"
+      ],
+      "only_in_django": [],
+      "only_in_postgres": []
+    },
+    "services_serviceproviderprofile": {
+      "mapped_to_pg_table": "service_provider_profiles",
+      "django_row_count": 1,
+      "django_cols_count": 21,
+      "pg_cols_count": 19,
+      "common_columns": [
+        "address",
+        "bio",
+        "business_name",
+        "certifications",
+        "completed_jobs_count",
+        "created_at",
+        "experience_years",
+        "is_available",
+        "is_suspended",
+        "is_verified_provider",
+        "languages",
+        "portfolio_items",
+        "rating",
+        "service_radius_km",
+        "skills",
+        "updated_at",
+        "user_id",
+        "working_hours"
+      ],
+      "only_in_django": [
+        "id",
+        "latitude",
+        "longitude"
+      ],
+      "only_in_postgres": [
+        "location"
+      ]
+    },
+    "services_servicelisting": {
+      "mapped_to_pg_table": "service_listings",
+      "django_row_count": 2,
+      "django_cols_count": 16,
+      "pg_cols_count": 16,
+      "common_columns": [
+        "base_price",
+        "category_id",
+        "completed_jobs",
+        "created_at",
+        "description",
+        "estimated_duration_mins",
+        "id",
+        "images",
+        "is_active",
+        "pricing_type",
+        "provider_id",
+        "rating",
+        "service_area_radius_km",
+        "subcategory_id",
+        "title",
+        "updated_at"
+      ],
+      "only_in_django": [],
+      "only_in_postgres": []
+    },
+    "services_servicerequestbooking": {
+      "mapped_to_pg_table": "service_request_bookings",
+      "django_row_count": 0,
+      "django_cols_count": 22,
+      "pg_cols_count": 0,
+      "common_columns": [],
+      "only_in_django": [
+        "address",
+        "budget",
+        "cancellation_reason",
+        "category_id",
+        "commission_amount",
+        "completed_at",
+        "created_at",
+        "customer_id",
+        "description",
+        "final_price",
+        "id",
+        "latitude",
+        "listing_id",
+        "longitude",
+        "notes",
+        "photos",
+        "provider_id",
+        "scheduled_date",
+        "scheduled_time_slot",
+        "status",
+        "title",
+        "updated_at"
+      ],
+      "only_in_postgres": []
+    },
+    "services_servicequote": {
+      "mapped_to_pg_table": "service_quotes",
+      "django_row_count": 0,
+      "django_cols_count": 10,
+      "pg_cols_count": 10,
+      "common_columns": [
+        "booking_id",
+        "created_at",
+        "estimated_duration",
+        "id",
+        "itemized_items",
+        "notes",
+        "provider_id",
+        "status",
+        "total_amount",
+        "updated_at"
+      ],
+      "only_in_django": [],
+      "only_in_postgres": []
+    },
+    "services_servicereview": {
+      "mapped_to_pg_table": "service_reviews",
+      "django_row_count": 0,
+      "django_cols_count": 11,
+      "pg_cols_count": 11,
+      "common_columns": [
+        "booking_id",
+        "comment",
+        "communication_rating",
+        "created_at",
+        "id",
+        "provider_id",
+        "punctuality_rating",
+        "quality_rating",
+        "rating",
+        "reviewer_id",
+        "value_rating"
+      ],
+      "only_in_django": [],
+      "only_in_postgres": []
+    },
+    "services_servicedispute": {
+      "mapped_to_pg_table": "service_disputes",
+      "django_row_count": 0,
+      "django_cols_count": 11,
+      "pg_cols_count": 11,
+      "common_columns": [
+        "booking_id",
+        "created_at",
+        "description",
+        "id",
+        "reason",
+        "resolution_note",
+        "resolved_at",
+        "status",
+        "updated_at"
+      ],
+      "only_in_django": [
+        "raised_by_id",
+        "resolved_by_id"
+      ],
+      "only_in_postgres": [
+        "raised_by",
+        "resolved_by"
+      ]
+    }
+  }
+}

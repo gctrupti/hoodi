@@ -1,0 +1,3083 @@
+{
+  "accounts_user": {
+    "row_count": 4,
+    "columns_count": 27,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "password",
+        "type": "varchar(128)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 1,
+        "name": "last_login",
+        "type": "datetime",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "is_superuser",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "first_name",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "last_name",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "is_staff",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "is_active",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "date_joined",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 9,
+        "name": "username",
+        "type": "varchar(150)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "email",
+        "type": "varchar(254)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 11,
+        "name": "full_name",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 12,
+        "name": "phone",
+        "type": "varchar(30)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 13,
+        "name": "avatar_url",
+        "type": "varchar(1000)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 14,
+        "name": "cover_url",
+        "type": "varchar(1000)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 15,
+        "name": "bio",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 16,
+        "name": "address",
+        "type": "varchar(500)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 17,
+        "name": "latitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 18,
+        "name": "longitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 19,
+        "name": "is_verified",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 20,
+        "name": "is_helper",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 21,
+        "name": "is_teacher",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 22,
+        "name": "is_admin_user",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 23,
+        "name": "rating",
+        "type": "REAL",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 24,
+        "name": "completed_tasks_count",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 25,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 26,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_accounts_user_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_accounts_user_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "accounts_user_groups": {
+    "row_count": 0,
+    "columns_count": 3,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "group_id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "auth_group",
+        "from": "group_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "accounts_user_groups_group_id_bd11a704",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "accounts_user_groups_user_id_52b62117",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "accounts_user_groups_user_id_group_id_59c0b32f_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "accounts_user_user_permissions": {
+    "row_count": 0,
+    "columns_count": 3,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "permission_id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "auth_permission",
+        "from": "permission_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "accounts_user_user_permissions_permission_id_113bb443",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "accounts_user_user_permissions_user_id_e4f0a161",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "accounts_user_user_permissions_user_id_permission_id_2ab516c2_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "auth_group": {
+    "row_count": 0,
+    "columns_count": 2,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_auth_group_1",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      }
+    ]
+  },
+  "auth_group_permissions": {
+    "row_count": 0,
+    "columns_count": 3,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "group_id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "permission_id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "auth_permission",
+        "from": "permission_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "auth_group",
+        "from": "group_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "auth_group_permissions_permission_id_84c5c92e",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "auth_group_permissions_group_id_b120cbf9",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "auth_group_permissions_group_id_permission_id_0cd325b0_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "auth_permission": {
+    "row_count": 96,
+    "columns_count": 4,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "content_type_id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "codename",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "name",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "django_content_type",
+        "from": "content_type_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "auth_permission_content_type_id_2f476e4b",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "auth_permission_content_type_id_codename_01ab375a_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "django_admin_log": {
+    "row_count": 0,
+    "columns_count": 8,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "object_id",
+        "type": "TEXT",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "object_repr",
+        "type": "varchar(200)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "action_flag",
+        "type": "smallint unsigned",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "change_message",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "content_type_id",
+        "type": "INTEGER",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "action_time",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "django_content_type",
+        "from": "content_type_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "django_admin_log_user_id_c564eba6",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "django_admin_log_content_type_id_c4bce8eb",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "django_content_type": {
+    "row_count": 24,
+    "columns_count": 3,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "app_label",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "model",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      {
+        "name": "django_content_type_app_label_model_76bd3d3b_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      }
+    ]
+  },
+  "django_migrations": {
+    "row_count": 23,
+    "columns_count": 4,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "app",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "name",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "applied",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": []
+  },
+  "django_session": {
+    "row_count": 0,
+    "columns_count": 3,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "session_key",
+        "type": "varchar(40)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "session_data",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "expire_date",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      {
+        "name": "django_session_expire_date_a5c62663",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_django_session_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "help_requests_chatmessage": {
+    "row_count": 0,
+    "columns_count": 5,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "message",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "sender_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "request_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "help_requests_helprequest",
+        "from": "request_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "sender_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "help_requests_chatmessage_request_id_c7138e21",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "help_requests_chatmessage_sender_id_d51b9cf0",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_help_requests_chatmessage_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "help_requests_helprequest": {
+    "row_count": 2,
+    "columns_count": 18,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "category",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "urgency",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "fare_amount",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "status",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "pickup_address",
+        "type": "varchar(500)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "pickup_latitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "pickup_longitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "dropoff_address",
+        "type": "varchar(500)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 11,
+        "name": "dropoff_latitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 12,
+        "name": "dropoff_longitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 13,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 14,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 15,
+        "name": "completed_at",
+        "type": "datetime",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 16,
+        "name": "helper_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 17,
+        "name": "requester_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "requester_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "helper_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "help_requests_helprequest_requester_id_b0045467",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "help_requests_helprequest_helper_id_40fac27a",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_help_requests_helprequest_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "help_requests_locationtracking": {
+    "row_count": 0,
+    "columns_count": 6,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "latitude",
+        "type": "REAL",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "longitude",
+        "type": "REAL",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "recorded_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "helper_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "request_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "help_requests_helprequest",
+        "from": "request_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "helper_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "help_requests_locationtracking_request_id_ba4c762b",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "help_requests_locationtracking_helper_id_dce5a454",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_help_requests_locationtracking_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "payments_wallet": {
+    "row_count": 3,
+    "columns_count": 6,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "balance",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "currency",
+        "type": "varchar(10)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_payments_wallet_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_payments_wallet_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "payments_wallettransaction": {
+    "row_count": 0,
+    "columns_count": 7,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "amount",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "transaction_type",
+        "type": "varchar(20)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "description",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "reference_id",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "wallet_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "payments_wallet",
+        "from": "wallet_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "payments_wallettransaction_wallet_id_9e2d05ac",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_payments_wallettransaction_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicecategory": {
+    "row_count": 4,
+    "columns_count": 9,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "slug",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "icon",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "sort_order",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "is_active",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_services_servicecategory_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicecategory_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicedispute": {
+    "row_count": 0,
+    "columns_count": 11,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "reason",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "status",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "resolution_note",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "resolved_at",
+        "type": "datetime",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "raised_by_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "resolved_by_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "booking_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "services_servicerequestbooking",
+        "from": "booking_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "resolved_by_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "raised_by_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicedispute_booking_id_4d8e8cb0",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicedispute_resolved_by_id_756f97d5",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicedispute_raised_by_id_098c6bb4",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicedispute_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicelisting": {
+    "row_count": 2,
+    "columns_count": 16,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "pricing_type",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "base_price",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "estimated_duration_mins",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "service_area_radius_km",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "images",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "is_active",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "rating",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "completed_jobs",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 11,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 12,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 13,
+        "name": "category_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 14,
+        "name": "provider_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 15,
+        "name": "subcategory_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "services_servicesubcategory",
+        "from": "subcategory_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "services_serviceproviderprofile",
+        "from": "provider_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "services_servicecategory",
+        "from": "category_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicelisting_subcategory_id_cd3a3687",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicelisting_provider_id_c684c654",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicelisting_category_id_84c6f9a4",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicelisting_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_serviceproviderprofile": {
+    "row_count": 1,
+    "columns_count": 21,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "business_name",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "bio",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "experience_years",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "service_radius_km",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "is_verified_provider",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "is_available",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "is_suspended",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "working_hours",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "skills",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "languages",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 11,
+        "name": "portfolio_items",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 12,
+        "name": "certifications",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 13,
+        "name": "rating",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 14,
+        "name": "completed_jobs_count",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 15,
+        "name": "address",
+        "type": "varchar(500)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 16,
+        "name": "latitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 17,
+        "name": "longitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 18,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 19,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 20,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_services_serviceproviderprofile_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_serviceproviderprofile_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicequote": {
+    "row_count": 0,
+    "columns_count": 10,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "itemized_items",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "total_amount",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "estimated_duration",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "notes",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "status",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "provider_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "booking_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "services_servicerequestbooking",
+        "from": "booking_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "services_serviceproviderprofile",
+        "from": "provider_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicequote_booking_id_2537ca1d",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicequote_provider_id_ff85ef85",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicequote_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicerequestbooking": {
+    "row_count": 0,
+    "columns_count": 22,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "scheduled_date",
+        "type": "date",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "scheduled_time_slot",
+        "type": "varchar(100)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "address",
+        "type": "varchar(500)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "latitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "longitude",
+        "type": "REAL",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "budget",
+        "type": "decimal",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "notes",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "photos",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 11,
+        "name": "status",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 12,
+        "name": "final_price",
+        "type": "decimal",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 13,
+        "name": "commission_amount",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 14,
+        "name": "cancellation_reason",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 15,
+        "name": "completed_at",
+        "type": "datetime",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 16,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 17,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 18,
+        "name": "category_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 19,
+        "name": "customer_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 20,
+        "name": "listing_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 21,
+        "name": "provider_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "services_serviceproviderprofile",
+        "from": "provider_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "services_servicelisting",
+        "from": "listing_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "customer_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 3,
+        "seq": 0,
+        "table": "services_servicecategory",
+        "from": "category_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicerequestbooking_provider_id_1398f07e",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicerequestbooking_listing_id_eba1c34c",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicerequestbooking_customer_id_2a0a39ae",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicerequestbooking_category_id_272b0e99",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicerequestbooking_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicereview": {
+    "row_count": 0,
+    "columns_count": 11,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "rating",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "quality_rating",
+        "type": "INTEGER",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "punctuality_rating",
+        "type": "INTEGER",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "communication_rating",
+        "type": "INTEGER",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "value_rating",
+        "type": "INTEGER",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "comment",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "booking_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "provider_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 10,
+        "name": "reviewer_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "reviewer_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "services_serviceproviderprofile",
+        "from": "provider_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "services_servicerequestbooking",
+        "from": "booking_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicereview_reviewer_id_96d19b3e",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicereview_provider_id_0e481475",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicereview_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicereview_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "services_servicesubcategory": {
+    "row_count": 2,
+    "columns_count": 8,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "slug",
+        "type": "varchar(150)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "is_active",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "updated_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "category_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "services_servicecategory",
+        "from": "category_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "services_servicesubcategory_category_id_8c89f11b",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicesubcategory_slug_3c6956b2",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "services_servicesubcategory_category_id_slug_0196e7de_uniq",
+        "unique": true,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_services_servicesubcategory_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "skills_availabilityslot": {
+    "row_count": 0,
+    "columns_count": 5,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "day_of_week",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "start_time",
+        "type": "time",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "end_time",
+        "type": "time",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "teacher_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "skills_teacherprofile",
+        "from": "teacher_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "skills_availabilityslot_teacher_id_8df8dbd9",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_skills_availabilityslot_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "skills_reviewrating": {
+    "row_count": 0,
+    "columns_count": 7,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "rating",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "comment",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "author_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "target_user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "booking_id",
+        "type": "char(32)",
+        "notnull": false,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "skills_skillbooking",
+        "from": "booking_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "target_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "author_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "skills_reviewrating_booking_id_efd6ebac",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "skills_reviewrating_target_user_id_59fc3f93",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "skills_reviewrating_author_id_bd22b8b0",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_skills_reviewrating_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "skills_skillbooking": {
+    "row_count": 0,
+    "columns_count": 9,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "booking_date",
+        "type": "date",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "start_time",
+        "type": "time",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "total_price",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "status",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "meeting_link",
+        "type": "varchar(1000)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "learner_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "offering_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "skills_skilloffering",
+        "from": "offering_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "learner_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "skills_skillbooking_offering_id_f955ab77",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "skills_skillbooking_learner_id_1b2c8cbd",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_skills_skillbooking_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "skills_skilloffering": {
+    "row_count": 1,
+    "columns_count": 10,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "category",
+        "type": "varchar(50)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "duration_minutes",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "price",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "is_online",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "is_in_person",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 8,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 9,
+        "name": "teacher_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "skills_teacherprofile",
+        "from": "teacher_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "skills_skilloffering_teacher_id_da141c87",
+        "unique": false,
+        "origin": "c",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_skills_skilloffering_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  },
+  "skills_teacherprofile": {
+    "row_count": 1,
+    "columns_count": 8,
+    "columns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": true
+      },
+      {
+        "cid": 1,
+        "name": "headline",
+        "type": "varchar(255)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 2,
+        "name": "bio",
+        "type": "TEXT",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 3,
+        "name": "experience_years",
+        "type": "INTEGER",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 4,
+        "name": "hourly_rate",
+        "type": "decimal",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 5,
+        "name": "is_approved",
+        "type": "bool",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 6,
+        "name": "created_at",
+        "type": "datetime",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      },
+      {
+        "cid": 7,
+        "name": "user_id",
+        "type": "char(32)",
+        "notnull": true,
+        "dflt_value": null,
+        "pk": false
+      }
+    ],
+    "foreign_keys": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "accounts_user",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "NO ACTION"
+      }
+    ],
+    "indexes": [
+      {
+        "name": "sqlite_autoindex_skills_teacherprofile_2",
+        "unique": true,
+        "origin": "u",
+        "partial": false
+      },
+      {
+        "name": "sqlite_autoindex_skills_teacherprofile_1",
+        "unique": true,
+        "origin": "pk",
+        "partial": false
+      }
+    ]
+  }
+}

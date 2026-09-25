@@ -1,45 +1,46 @@
 # Hoodi — System Design Architectural Decision Records (ADRs)
 
 > **Document:** Architecture Decision Records (ADRs)  
-> **Status:** Approved Architecture Blueprint  
+> **Status:** Approved Architecture Blueprint (Incorporating Review Corrections)  
 > **Project:** Hoodi Hyperlocal Community Platform  
+> **Pattern:** Modular Monolith (Django 6.x + PostgreSQL 16 + PostGIS)  
 > **Date:** September 2026  
 
 ---
 
 ## Index of Architectural Decisions
 
-* [ADR-001: Backend Topology & Database Unification](#adr-001-backend-topology--database-unification)
-* [ADR-002: Geospatial Matching & Spatial Query Optimization](#adr-002-geospatial-matching--spatial-query-optimization)
+* [ADR-001: Authoritative Business Tier & Database Unification](#adr-001-authoritative-business-tier--database-unification)
+* [ADR-002: Spatial Indexing & Geospatial Matching Strategy](#adr-002-spatial-indexing--geospatial-matching-strategy)
 * [ADR-003: Concurrency Control & Task Acceptance Invariants](#adr-003-concurrency-control--task-acceptance-invariants)
 * [ADR-004: Financial Ledger Integrity, Idempotency & Wallet Safety](#adr-004-financial-ledger-integrity-idempotency--wallet-safety)
 * [ADR-005: Asynchronous Processing Engine & Worker Strategy](#adr-005-asynchronous-processing-engine--worker-strategy)
 * [ADR-006: Real-Time Communication Transport (Chat, Tracking & Status)](#adr-006-real-time-communication-transport-chat-tracking--status)
 * [ADR-007: AI Categorization & Fare Estimation Architecture](#adr-007-ai-categorization--fare-estimation-architecture)
+* [ADR-008: Database Migration Protocol (SQLite to PostgreSQL)](#adr-008-database-migration-protocol-sqlite-to-postgresql)
 * [Justification Matrix: Current Scale vs. Deferred Infrastructure](#justification-matrix-current-scale-vs-deferred-infrastructure)
 
 ---
 
-## ADR-001: Backend Topology & Database Unification
+## ADR-001: Authoritative Business Tier & Database Unification
 
 ### Context
 Inspection of the existing codebase revealed a split architecture:
 1. `backend/`: Django 6.x + DRF backed by local SQLite (`db.sqlite3`).
-2. `frontend/`: TanStack Start (React 19) server functions executing direct queries to a remote Supabase (PostgreSQL 14.5) database via `@supabase/supabase-js`.
-3. `mobile/`: Flutter client configured with `supabase_flutter` talking directly to Supabase.
+2. `frontend/`: TanStack Start (React 19) server functions executing direct mutations against a remote Supabase (PostgreSQL 14.5) database via `@supabase/supabase-js`.
+3. `mobile/`: Flutter client configured with `supabase_flutter` executing queries directly against Supabase.
 
-Operating two disparate data stores creates data drift, dual maintenance of business logic, split user sessions, and broken referential integrity.
+Operating two disparate data stores creates data drift, dual maintenance of business logic, split user sessions, and broken referential integrity. Furthermore, allowing web and mobile clients to execute critical business mutations (task acceptance, wallet credits, booking state changes) directly against a BaaS bypasses business rule validation, idempotency checks, and audit logging.
 
 ### Decision
-* **Target Single Source of Truth**: Standardize the primary database on **PostgreSQL 16 + PostGIS**.
-* **Architecture Style**: Adopt a **Modular Monolith** pattern.
-* **Database Connection**: 
-  - Point Django's `DATABASES['default']` to the PostgreSQL instance.
-  - Expose core business logic through a clean **Domain Service Layer** in Django or shared server modules, ensuring that whether a request originates from the web frontend or mobile app, business invariants (financial checks, task acceptance, and state transitions) execute identical code paths.
+* **Authoritative Database**: Standardize on **PostgreSQL 16 + PostGIS** as the single authoritative transactional database.
+* **Authoritative Business Layer**: Establish **Django 6.x** as the authoritative business logic and API service tier.
+* **Client Mutation Routing**: Web (React/TanStack) and Mobile (Flutter) clients must **not** execute critical business mutations directly against Supabase. All mutating business operations (task acceptance, payment capture, wallet adjustments, booking confirmations) must route through the Django API/Service layer.
+* **Architecture Style**: Maintain a strict **Modular Monolith**. Do not introduce microservices, Kubernetes, or Kafka.
 
 ### Consequences
 * **Positive**:
-  - Unified user table, permissions, and audit logs.
+  - Centralized invariant validation, permissions, and audit logs.
   - Native PostGIS geospatial indexing (`ST_DWithin`, `GiST`).
   - True ACID transactions across financial ledger and task states.
 * **Negative**:
@@ -47,7 +48,7 @@ Operating two disparate data stores creates data drift, dual maintenance of busi
 
 ---
 
-## ADR-002: Geospatial Matching & Spatial Query Optimization
+## ADR-002: Spatial Indexing & Geospatial Matching Strategy
 
 ### Context
 In the current Django codebase (`help_requests/views.py` and `services/views.py`), the nearby discovery query:
@@ -56,14 +57,11 @@ In the current Django codebase (`help_requests/views.py` and `services/views.py`
 3. Computes the Haversine trigonometric distance in application memory.
 4. Filters and sorts the list in memory.
 
-This represents an $O(N)$ full table scan that consumes heavy CPU and memory. At 10,000 tasks, this query will exhaust server memory and induce multi-second response latency.
+This represents an $O(N)$ full table scan that consumes heavy CPU and memory.
 
 ### Decision
-Implement a **two-tier geospatial query pipeline**:
-1. **Tier 1 (Immediate B-Tree Bounding Box Pre-Filter)**:
-   Calculate coordinate delta $\Delta\text{lat} \approx \frac{r}{111.32}$, $\Delta\text{lon} \approx \frac{r}{111.32 \times \cos(\text{lat})}$. Use indexed B-Tree range scans on `pickup_latitude` and `pickup_longitude` to eliminate 98%+ of candidates before math calculations.
-2. **Tier 2 (PostGIS Native Spatial Indexing)**:
-   Store locations as `geometry(Point, 4326)` or `geography(Point, 4326)` with a spatial **`GiST` index**. Queries execute natively in database engine:
+1. **PostGIS Native Spatial Indexing (`GiST`)**:
+   Store locations as `geography(Point, 4326)` with a spatial **`GiST` index**. Queries execute natively in PostgreSQL:
    ```sql
    SELECT id, title, ST_Distance(geom, ST_MakePoint(:lon, :lat)::geography) AS distance_meters
    FROM help_requests
@@ -72,10 +70,14 @@ Implement a **two-tier geospatial query pipeline**:
    ORDER BY distance_meters ASC
    LIMIT 50;
    ```
-3. **Caching**: Cache nearby search results by **Geohash-5 prefix** (approx $4.9\text{ km} \times 4.9\text{ km}$ tile) in Redis for 30 seconds.
+2. **Performance Characterization**:
+   GiST spatial indexing provides efficient candidate pruning and bounding-box filtering inside the database engine, avoiding catastrophic application-side full table scans. Performance is **not a guaranteed theoretical $O(\log N)$**; actual query execution time depends on spatial selectivity, data distribution, clustering, and Postgres query planner choices.
+3. **Bounding-Box Index Verification**:
+   An auxiliary B-Tree index on `(latitude, longitude)` will **not** be added blindly. In PostGIS, GiST indices already operate on Minimum Bounding Rectangles (MBRs). Any auxiliary scalar bounding-box filtering must be benchmarked against GiST using `EXPLAIN ANALYZE` before implementation.
+4. **Caching**: Cache nearby search results by **Geohash-5 prefix** (approx $4.9\text{ km} \times 4.9\text{ km}$ tile) in Redis with a 30-second TTL.
 
 ### Consequences
-* **Positive**: Query latency drops from $O(N)$ with hundreds of milliseconds to $O(\log N)$ in $<15\text{ms}$.
+* **Positive**: Eliminates in-memory full table scans and offloads spatial math to the database engine.
 * **Negative**: Requires PostGIS extension enabled on PostgreSQL.
 
 ---
@@ -200,15 +202,40 @@ Users posting errands often provide brief or unstructured text (e.g., *"Need par
 
 ---
 
+## ADR-008: Database Migration Protocol (SQLite to PostgreSQL)
+
+### Context
+The project currently has data and models divided between Django SQLite (`backend/db.sqlite3`) and Supabase PostgreSQL. Migrating to a single authoritative PostgreSQL database requires zero data loss, strict schema mapping, and verifiable relationship preservation.
+
+### Decision
+Adopt a strict, phased migration procedure:
+1. **Inventory**: Catalog all tables, columns, constraints, foreign keys, and row counts in Django SQLite (`backend/db.sqlite3`).
+2. **Schema Comparison**: Cross-reference Django SQLite tables against the existing Supabase PostgreSQL schema (`requests`, `profiles`, `wallets`, `services`, `skill_offerings`).
+3. **Duplicate/Overlap Resolution**: Reconcile naming discrepancies (e.g., `HelpRequest` vs `requests`, `accounts_user` vs `profiles`). Define the authoritative schema.
+4. **Primary Key Mapping**: Preserve existing UUIDs to prevent breaking frontend and mobile client identifiers.
+5. **Backup Snapshotting**: Create non-destructive binary and SQL backups of both databases (`db.sqlite3.bak`, `pg_dump`).
+6. **Data Transfer & Transform**: Execute a dedicated ETL script that transfers records, maps foreign keys, and converts coordinates into PostGIS `geography(Point, 4326)`.
+7. **Verification Invariants**:
+   * Compare pre-migration and post-migration row counts across all models.
+   * Verify all foreign key relationships remain intact.
+   * Verify nullability and check constraints.
+   * Do **NOT** drop or overwrite existing tables until verification passes 100%.
+
+### Consequences
+* **Positive**: Guarantees zero data loss, schema consistency, and verifiable integrity.
+* **Negative**: Requires dedicated planning and migration tooling before application refactoring.
+
+---
+
 ## Justification Matrix: Current Scale vs. Deferred Infrastructure
 
 | Proposed Component | Needed in Phase 1 (Current Scale)? | Needed in Phase 2 (High Scale)? | Justification & Pragmatic Rationale |
 | :--- | :---: | :---: | :--- |
-| **ACID Row Locks (`SELECT FOR UPDATE`)** | **YES** | **YES** | **Critical Day 1**: Without row locks, even 5 concurrent users will trigger double-acceptance and corrupted balances. |
+| **ACID Row Locks (`SELECT FOR UPDATE`)** | **YES** | **YES** | **Critical Day 1**: Without row locks, concurrent users will double-accept tasks and corrupt wallet balances. |
 | **Idempotency Keys** | **YES** | **YES** | **Critical Day 1**: Network retries on mobile connections frequently cause double-submits. |
-| **PostGIS Spatial Indexing (`GiST`)** | **YES** | **YES** | **Critical Day 1**: Full in-memory table scans on Haversine distance do not scale past a single neighborhood. |
-| **Domain Service Layer** | **YES** | **YES** | **Critical Day 1**: Prevents duplicated business logic across DRF views and frontend server functions. |
-| **Redis Cache & Broker** | **YES** | **YES** | Serves as both lightweight task queue broker and geospatial feed cache. Modest footprint (~25MB RAM). |
+| **PostGIS Spatial Indexing (`GiST`)** | **YES** | **YES** | **Critical Day 1**: Full in-memory table scans on Haversine distance fail beyond a few hundred neighborhood requests. |
+| **Domain Service Layer** | **YES** | **YES** | **Critical Day 1**: Prevents duplicate business logic between the web frontend and mobile APIs. |
+| **Redis Cache & Broker** | **YES** | **YES** | Serves as lightweight task queue broker and geospatial feed cache. Configured with maxmemory and monitored dynamically via `INFO memory`. |
 | **Database Read Replicas** | **NO** | **YES** | Current read volume does not exceed PostgreSQL single-node capacity (thousands of queries/sec). |
 | **Apache Kafka** | **NO** | **YES** | Extreme overkill. Redis task queue easily handles thousands of events per second with zero cluster complexity. |
 | **Kubernetes (K8s) Cluster** | **NO** | **YES** | Massive operational overhead. A single VPS or simple Docker Compose/PaaS easily handles Hoodi's current scale. |
