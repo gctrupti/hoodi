@@ -383,7 +383,7 @@ class _ServicesMarketplaceViewState extends State<ServicesMarketplaceView>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.between,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -443,7 +443,7 @@ class _ServicesMarketplaceViewState extends State<ServicesMarketplaceView>
                               ),
                               const Divider(height: 24),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.between,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,7 +491,7 @@ class _ServicesMarketplaceViewState extends State<ServicesMarketplaceView>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.between,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
                         Text('Provider Overview', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         Icon(Icons.badge_outlined, color: AppTheme.primary),
@@ -521,7 +521,7 @@ class _ServicesMarketplaceViewState extends State<ServicesMarketplaceView>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.between,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text('Switchboard Sparking Fix', style: TextStyle(fontWeight: FontWeight.bold)),
                           Container(
