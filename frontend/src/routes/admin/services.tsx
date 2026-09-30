@@ -62,7 +62,12 @@ function AdminServicesPage() {
       const { data, error } = await supabase
         .from("service_categories" as never)
         .select("id, name, slug, icon, description, sort_order, is_active");
-      if (error) throw error;
+      if (error) {
+        if (error.code === "PGRST205" || (error as any).message?.includes("Could not find the table")) {
+          return [];
+        }
+        throw error;
+      }
       return (data ?? []) as unknown as CategoryRow[];
     },
   });
@@ -84,7 +89,12 @@ function AdminServicesPage() {
           created_at,
           profile:profiles(name, phone_number, phone_verified)
         `);
-      if (error) throw error;
+      if (error) {
+        if (error.code === "PGRST205" || (error as any).message?.includes("Could not find the table")) {
+          return [];
+        }
+        throw error;
+      }
       return (data ?? []) as unknown as ProviderRow[];
     },
   });
