@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { LogOut, LayoutGrid } from "lucide-react";
 import { HoodiMark } from "@/components/hoodi/HoodiLogo";
 import { NotificationBell } from "@/components/hoodi/NotificationBell";
+import { ThemeToggle } from "@/components/hoodi/ThemeToggle";
 
 export type ShellNavItem = {
   to: string;
@@ -75,6 +76,7 @@ export function ProductShell({ brand, brandIcon: BrandIcon, homeHref, nav, mobil
             })}
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationBell />
             <Link
               to="/home"

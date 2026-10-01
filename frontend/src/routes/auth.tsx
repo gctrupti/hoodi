@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Eye, EyeOff, Sparkles } from "lucide-react";
+import { ThemeToggle } from "@/components/hoodi/ThemeToggle";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -121,9 +122,12 @@ function AuthPage() {
 
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink md:hidden">
-            <ArrowLeft className="h-4 w-4" /> Home
-          </Link>
+          <div className="mb-6 flex items-center justify-between">
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-ink">
+              <ArrowLeft className="h-4 w-4" /> Back to Home
+            </Link>
+            <ThemeToggle />
+          </div>
           <h1 className="font-display text-3xl font-bold text-ink">
             {mode === "signup" ? "Join Hoodi" : "Welcome back"}
           </h1>
